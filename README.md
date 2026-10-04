@@ -72,7 +72,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Project structure
 
 ```
-arc-space/                    # Arc's generative backend (Hugging Face Space)
+arc-space/                    # Arc's generative backend (Docker: FastAPI + llama.cpp)
 src/
 ├── app/
 │   ├── layout.tsx            # fonts, metadata, providers, nav, cursor, palette
@@ -110,7 +110,7 @@ src/
 Browser (Arc panel) ──► /api/arc  (Vercel route: validation, rate limit, holds the secret)
                               │
                               ▼
-          Hugging Face Space "arc-space"   (FastAPI · arc-space/)
+          Arc model server "arc-space"   (FastAPI · arc-space/, Docker)
           ├─ knowledge   ◄── GET /api/arc/knowledge   (generated from src/lib/content.ts)
           ├─ retrieval   = BM25 + BAAI/bge-small-en-v1.5 embeddings, hybrid-scored
           └─ generation  = Qwen2.5-1.5B-Instruct (GGUF, llama.cpp, CPU) → NDJSON stream
@@ -121,12 +121,20 @@ Browser (Arc panel) ──► /api/arc  (Vercel route: validation, rate limit, h
 - **Always on.** If the Space is asleep or unreachable, `/api/arc` returns 503 and the browser answers with the local engine in `src/lib/assistant/` (intent router + BM25).
 - **Swappable model.** Point `ARC_MODEL_REPO` / `ARC_MODEL_FILE` at a fine-tuned GGUF to change Arc's brain without touching code.
 
-### Deploying the Space
+### Deploying Arc's model server
 
-1. Create a new **Docker** Space on [huggingface.co/new-space](https://huggingface.co/new-space) (free CPU basic).
-2. Push the contents of `arc-space/` to it.
-3. In the Space settings, add the secret `ARC_API_KEY` (any long random string).
-4. In Vercel, add `ARC_SPACE_URL=https://<user>-<space>.hf.space` and the same `ARC_API_KEY`, then redeploy.
+`arc-space/` is a plain Docker app, so it runs on any Linux machine. The reference setup is an
+**Oracle Cloud Always Free** ARM VM (4 OCPU, 24 GB RAM), fronted by Caddy for automatic HTTPS:
+
+1. Create an Ubuntu VM (shape `VM.Standard.A1.Flex`) and allow TCP 80 and 443 in its subnet's security list.
+2. SSH in and run:
+   ```bash
+   bash <(curl -fsSL https://raw.githubusercontent.com/MehulDadhich/mehul-portfolio/main/arc-space/deploy/setup-oci.sh)
+   ```
+   It installs Docker, builds the service, opens the firewall and prints the HTTPS address (`<ip>.sslip.io`).
+3. In Vercel, set `ARC_SPACE_URL` to that address and `ARC_API_KEY` to the same key, then redeploy.
+
+The same folder also works as a Hugging Face Docker Space (needs a PRO plan) via `arc-space/README.md`.
 
 ## Deployment
 

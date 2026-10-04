@@ -1,0 +1,32 @@
+# Arc on any Linux VM (built for Oracle Cloud Always Free, ARM A1): the model service behind Caddy (automatic HTTPS).
+# Values come from .env next to this file (written by setup-oci.sh): ARC_API_KEY, ARC_DOMAIN, optional model overrides.
+services:
+  arc:
+    build: ..
+    restart: unless-stopped
+    environment:
+      ARC_API_KEY: ${ARC_API_KEY:?set ARC_API_KEY in .env}
+      ARC_KNOWLEDGE_URL: ${ARC_KNOWLEDGE_URL:-https://mehul-portfolio-inky.vercel.app/api/arc/knowledge}
+      ARC_MODEL_REPO: ${ARC_MODEL_REPO:-Qwen/Qwen2.5-1.5B-Instruct-GGUF}
+      ARC_MODEL_FILE: ${ARC_MODEL_FILE:-qwen2.5-1.5b-instruct-q4_k_m.gguf}
+    expose:
+      - "7860"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - arc
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ARC_DOMAIN: ${ARC_DOMAIN:?set ARC_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

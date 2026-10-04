@@ -1,0 +1,8 @@
+# HTTPS for Arc. Caddy obtains a Let's Encrypt certificate for ARC_DOMAIN automatically.
+{$ARC_DOMAIN} {
+	encode gzip
+	reverse_proxy arc:7860 {
+		# stream tokens to the browser as soon as they are generated
+		flush_interval -1
+	}
+}
