@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Mona_Sans } from "next/font/google";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { Nav } from "@/components/shared/nav";
-import { CommandPalette } from "@/components/shared/command-palette";
 import { EasterEgg } from "@/components/shared/easter-egg";
 import { DetectionCursor } from "@/components/shared/detection-cursor";
+import { Assistant } from "@/components/assistant/assistant";
 import { siteDescription, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -58,9 +58,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SmoothScroll />
         <Nav />
         {children}
-        <CommandPalette />
         <EasterEgg />
         <DetectionCursor />
+        <Assistant />
       </body>
     </html>
   );
