@@ -24,8 +24,9 @@ and the contact page is a live LiDAR scan.
 | **Scroll-driven case study** | RoadGuard, my accident-detection pipeline, is pinned while you scroll through *Video → YOLO → Tracking → LSTM → VLM → Alert*. An illustrative simulation adds boxes, track IDs, the LSTM score, the VLM verdict and the alert at each stage. |
 | **Projects as architectures** | Filterable project cards whose pipelines light up on hover, with an *Explore architecture* view for each system. |
 | **Evidence-linked skills** | Pick a project to see which skills it used, or hover a skill to see where it came from. |
+| **Arc, the on-site assistant** | A chat assistant built from scratch that runs entirely in the browser, with no external AI API. An intent router plus BM25 retrieval (synonyms, typo tolerance, follow-up memory) answers from a knowledge base generated from the site's own content, and shows its trace. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. Code in `src/lib/assistant/`. |
 | **LiDAR contact section** | A street rendered as a 3D point cloud with a sweeping scan ring. The cursor orbits the camera. |
-| **Small details** | A detection-box cursor that labels whatever you point at, a <kbd>Ctrl</kbd>+<kbd>K</kbd> command palette, count-up metrics, scroll-velocity tickers and a footer signature that fills with gold as you reach the end. |
+| **Small details** | A detection-box cursor that labels whatever you point at, count-up metrics, scroll-velocity tickers and a footer signature that fills with gold as you reach the end. |
 
 <p align="center">
   <img src="docs/capabilities.png" alt="Capability frames settled into a grid" width="49%" />
@@ -42,7 +43,7 @@ and the contact page is a live LiDAR scan.
 | Area | Tools |
 |---|---|
 | Framework | [Next.js 16](https://nextjs.org) (App Router), React 19, TypeScript |
-| Styling | Tailwind CSS v4, design tokens in CSS variables, [shadcn/ui](https://ui.shadcn.com) (dialog and command palette) |
+| Styling | Tailwind CSS v4, design tokens in CSS variables, [shadcn/ui](https://ui.shadcn.com) (dialog) |
 | Motion | [Motion](https://motion.dev) for UI and layout animation, [GSAP](https://gsap.com) with ScrollTrigger, SplitText and ScrambleText for scroll and text effects, [Lenis](https://lenis.darkroom.engineering) for smooth scrolling |
 | Graphics | Hand-written Canvas 2D: diffusion particles, pipeline simulation, LiDAR point cloud. No WebGL, no 3D library. |
 | Fonts | Mona Sans (display), Geist and Geist Mono via `next/font` |
@@ -79,15 +80,17 @@ src/
 │   ├── opengraph-image.tsx   # generated social preview image
 │   ├── icon.svg, robots.ts, sitemap.ts
 ├── components/
+│   ├── assistant/            # Arc chat panel
 │   ├── hero/                 # diffusion name, motion frames, signal path
 │   ├── featured/             # pinned RoadGuard pipeline + canvas simulation
 │   ├── projects/             # filterable cards and architecture views
 │   ├── sections/             # experience, skills, journey, certifications, contact, footer
-│   ├── shared/               # nav, command palette, cursor, reveals, ticker, tilt card…
+│   ├── shared/               # nav, cursor, reveals, ticker, tilt card…
 │   ├── providers/            # Lenis + GSAP ScrollTrigger wiring
 │   └── ui/                   # shadcn/ui primitives
 ├── hooks/                    # visibility-aware canvas loop
 └── lib/
+    ├── assistant/            # Arc: knowledge base + retrieval engine
     ├── content.ts            # ← every word on the site lives here
     └── site.ts               # site URL, title and description
 ```

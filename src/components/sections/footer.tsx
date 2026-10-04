@@ -33,7 +33,7 @@ export function Footer() {
       </div>
       <div className="mx-auto flex max-w-[1400px] flex-col justify-between gap-3 px-4 py-8 font-mono text-[12px] text-dim sm:flex-row sm:px-6 lg:px-10">
         <span>© {new Date().getFullYear()} {profile.name}</span>
-        <span>Built with Next.js, Motion, GSAP and Lenis · press Ctrl + K</span>
+        <span>Built with Next.js, Motion, GSAP and Lenis · press Ctrl + K to ask Arc</span>
       </div>
     </footer>
   );

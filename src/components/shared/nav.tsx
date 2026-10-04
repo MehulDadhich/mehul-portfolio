@@ -4,7 +4,7 @@ import { motion, useScroll, useSpring } from "motion/react";
 import { Download } from "lucide-react";
 import { profile, sections } from "@/lib/content";
 import { scrollToId, scrollToY } from "@/components/providers/smooth-scroll";
-import { openCommandPalette } from "./command-palette";
+import { openAssistant } from "@/components/assistant/assistant";
 
 export function Nav() {
   const { scrollYProgress } = useScroll();
@@ -43,13 +43,14 @@ export function Nav() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={openCommandPalette}
+              onClick={openAssistant}
+              data-cursor="ask arc"
               className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 font-mono text-[12px] text-soft transition-colors hover:border-line-strong hover:text-fg sm:flex"
-              aria-label="Open command palette"
+              aria-label="Ask Arc, Mehul's portfolio assistant (Ctrl + K)"
             >
-              <kbd className="font-mono">Ctrl</kbd>
-              <span className="text-dim">+</span>
-              <kbd className="font-mono">K</kbd>
+              <span className="text-fg">Ask Arc</span>
+              <span className="text-dim">·</span>
+              <kbd className="font-mono">Ctrl K</kbd>
             </button>
             <a
               href={profile.resume}
