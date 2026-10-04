@@ -234,7 +234,11 @@ function route(question: string, memory: Memory): Reply {
   if (/\b(resume|cv|curriculum vitae)\b/.test(s) && !/computer vision/.test(s) && words.length <= 7) {
     return fromDoc(doc("resume"), "resume");
   }
-  if (/\b(arc|are you|who are you|what are you|you (a |an )?(bot|ai|human|real|robot)|chatgpt|gpt|how do you work|how does (this|the) (bot|chat|assistant)|built this (bot|chat))\b/.test(s)) {
+  // questions addressed to Arc itself ("do you use RAG?", "what model powers you?"), not to Mehul
+  const aboutArc =
+    /\b(you|your|yourself)\b/.test(s) && !/\b(he|his|him|mehul)\b/.test(s) &&
+    /\b(use|uses|using|run|runs|running|work|works|built|made|powered|based|model|rag|llm|ai|gpt|retriev\w*|generat\w*|trained|learn\w*|embedding\w*|bm25)\b/.test(s);
+  if (aboutArc || /\b(arc|are you|who are you|what are you|you (a |an )?(bot|ai|human|real|robot)|chatgpt|gpt|how do you work|how does (this|the) (bot|chat|assistant)|built this (bot|chat))\b/.test(s)) {
     return fromDoc(doc("site.bot"), "meta.bot");
   }
   if (/\b(this|the|your|his) (site|website|portfolio)\b|\bwebsite\b/.test(s)) {
