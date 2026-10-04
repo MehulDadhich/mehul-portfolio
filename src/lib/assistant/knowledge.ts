@@ -271,7 +271,7 @@ function siteDocs(): Doc[] {
       id: "site.tech",
       title: "How this site is built",
       answer:
-        "This site is built with **Next.js 16, React 19, TypeScript and Tailwind CSS**. Animations use **Motion** and **GSAP** (ScrollTrigger, SplitText), smooth scrolling uses **Lenis**, " +
+        "This is Mehul's portfolio site, built with **Next.js 16, React 19, TypeScript and Tailwind CSS**. Animations use **Motion** and **GSAP** (ScrollTrigger, SplitText), smooth scrolling uses **Lenis**, " +
         "and the diffusion hero, RoadGuard simulation and LiDAR point cloud are hand-written **Canvas 2D**. It's hosted on Vercel.",
       keys: ["site", "website", "portfolio site", "this site", "built", "made", "tech", "nextjs", "next.js", "react", "animation", "gsap", "framer", "motion", "hosted", "vercel", "design"],
       links: [{ label: "Source on GitHub", href: "https://github.com/MehulDadhich/mehul-portfolio" }],
@@ -280,10 +280,21 @@ function siteDocs(): Doc[] {
       id: "site.bot",
       title: "How Arc works",
       answer:
-        "I'm **Arc**, and I run entirely in your browser, with **no external AI API**. An **intent router** handles greetings, contact and skill questions, and a **BM25 retriever** " +
-        "with synonyms, typo tolerance and project-aware boosting searches a knowledge base generated from the site's own content. " +
-        "I only answer from that content, so I won't make things up.",
-      keys: ["arc", "bot", "assistant", "chatbot", "bm25", "retrieval", "intent router", "no api"],
+        "I'm **Arc**, Mehul's portfolio assistant, and I don't use any third-party AI such as ChatGPT, Claude or Gemini. I'm a **RAG (retrieval-augmented generation)** system: " +
+        "your question is matched against a knowledge base generated from this site's content using **hybrid retrieval** (BM25 keyword search plus **bge-small** vector embeddings), " +
+        "and an open-weight language model, **Qwen2.5-1.5B-Instruct** running on llama.cpp, writes the answer from only the retrieved facts. " +
+        "If that model is asleep, a fully in-browser engine (intent router + BM25) answers instead.",
+      keys: ["arc", "bot", "assistant", "chatbot", "rag", "retrieval augmented generation", "bm25", "embeddings", "vector", "llm", "model", "qwen", "how do you work", "no api"],
+    },
+    {
+      id: "web",
+      title: "Web development",
+      answer:
+        "Mehul builds full-stack web applications as well as models: the **Warehouse Monitoring System** has a React + TypeScript dashboard on a FastAPI backend with WebSockets, " +
+        "the **AI Task Manager** pairs a React (Vite) frontend with a Node.js/Express API and Firebase, and this portfolio is a **Next.js** site. " +
+        "His skills include React, Node.js, FastAPI, REST APIs, WebSockets, PostgreSQL, Docker and Nginx.",
+      keys: ["website", "web", "site", "web development", "frontend", "front end", "backend", "full stack", "fullstack", "react", "nextjs", "web app", "develop a site", "build a website", "dashboard"],
+      links: [{ label: "Projects", section: "work" }, { label: "Skills", section: "skills" }],
     },
     {
       id: "site.easter",

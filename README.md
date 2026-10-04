@@ -24,7 +24,7 @@ and the contact page is a live LiDAR scan.
 | **Scroll-driven case study** | RoadGuard, my accident-detection pipeline, is pinned while you scroll through *Video → YOLO → Tracking → LSTM → VLM → Alert*. An illustrative simulation adds boxes, track IDs, the LSTM score, the VLM verdict and the alert at each stage. |
 | **Projects as architectures** | Filterable project cards whose pipelines light up on hover, with an *Explore architecture* view for each system. |
 | **Evidence-linked skills** | Pick a project to see which skills it used, or hover a skill to see where it came from. |
-| **Arc, the on-site assistant** | A chat assistant built from scratch that runs entirely in the browser, with no external AI API. An intent router plus BM25 retrieval (synonyms, typo tolerance, follow-up memory) answers from a knowledge base generated from the site's own content, and shows its trace. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. Code in `src/lib/assistant/`. |
+| **Arc, the on-site assistant** | A generative RAG assistant with no third-party AI. Questions go through hybrid retrieval (BM25 + `bge-small` embeddings) over a knowledge base generated from the site's content, then an open-weight model (Qwen2.5-1.5B-Instruct via llama.cpp) writes a grounded answer that streams into the chat. Arc shows the pipeline steps it ran, and falls back to an in-browser retrieval engine if the model is asleep. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. See [Arc's architecture](#arc-generative-rag-assistant). |
 | **LiDAR contact section** | A street rendered as a 3D point cloud with a sweeping scan ring. The cursor orbits the camera. |
 | **Small details** | A detection-box cursor that labels whatever you point at, count-up metrics, scroll-velocity tickers and a footer signature that fills with gold as you reach the end. |
 
@@ -72,6 +72,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Project structure
 
 ```
+arc-space/                    # Arc's generative backend (Hugging Face Space)
 src/
 ├── app/
 │   ├── layout.tsx            # fonts, metadata, providers, nav, cursor, palette
@@ -89,6 +90,7 @@ src/
 │   ├── providers/            # Lenis + GSAP ScrollTrigger wiring
 │   └── ui/                   # shadcn/ui primitives
 ├── hooks/                    # visibility-aware canvas loop
+│   (app/api/arc/)            # Arc proxy route + knowledge endpoint
 └── lib/
     ├── assistant/            # Arc: knowledge base + retrieval engine
     ├── content.ts            # ← every word on the site lives here
@@ -102,12 +104,36 @@ src/
 - **Colours:** change the tokens at the top of [`src/app/globals.css`](src/app/globals.css). The `.screen` block styles the small dark "device screens".
 - **Domain:** set `NEXT_PUBLIC_SITE_URL` (or change `PRODUCTION_URL` in [`src/lib/site.ts`](src/lib/site.ts)) so canonical links, Open Graph images and the sitemap use your domain.
 
+## Arc: generative RAG assistant
+
+```
+Browser (Arc panel) ──► /api/arc  (Vercel route: validation, rate limit, holds the secret)
+                              │
+                              ▼
+          Hugging Face Space "arc-space"   (FastAPI · arc-space/)
+          ├─ knowledge   ◄── GET /api/arc/knowledge   (generated from src/lib/content.ts)
+          ├─ retrieval   = BM25 + BAAI/bge-small-en-v1.5 embeddings, hybrid-scored
+          └─ generation  = Qwen2.5-1.5B-Instruct (GGUF, llama.cpp, CPU) → NDJSON stream
+```
+
+- **No third-party AI API.** Both models are open weights running inside the Space.
+- **Grounded.** The system prompt restricts answers to the retrieved context; Arc says when it doesn't know.
+- **Always on.** If the Space is asleep or unreachable, `/api/arc` returns 503 and the browser answers with the local engine in `src/lib/assistant/` (intent router + BM25).
+- **Swappable model.** Point `ARC_MODEL_REPO` / `ARC_MODEL_FILE` at a fine-tuned GGUF to change Arc's brain without touching code.
+
+### Deploying the Space
+
+1. Create a new **Docker** Space on [huggingface.co/new-space](https://huggingface.co/new-space) (free CPU basic).
+2. Push the contents of `arc-space/` to it.
+3. In the Space settings, add the secret `ARC_API_KEY` (any long random string).
+4. In Vercel, add `ARC_SPACE_URL=https://<user>-<space>.hf.space` and the same `ARC_API_KEY`, then redeploy.
+
 ## Deployment
 
 The site is fully static, so it deploys to [Vercel](https://vercel.com) with no configuration:
 
 1. Push the repo to GitHub and import it in Vercel.
-2. Add the environment variable `NEXT_PUBLIC_SITE_URL=https://your-domain`.
+2. Add the environment variable `NEXT_PUBLIC_SITE_URL=https://your-domain` (and `ARC_SPACE_URL` / `ARC_API_KEY` for generative Arc).
 3. Deploy.
 
 ## Performance and accessibility
