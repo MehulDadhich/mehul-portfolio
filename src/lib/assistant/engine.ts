@@ -305,6 +305,17 @@ function route(question: string, memory: Memory): Reply {
   return fromDoc(top.d.doc, "retrieval", top.score);
 }
 
+/**
+ * Entity and facet hints for the generative backend: which project a question is about
+ * (following up on the previous question when it says "it", "that project"...) and which facet.
+ */
+export function hints(question: string, previousQuestion?: string): { entity?: string; facet?: string } {
+  const s = normalize(question);
+  let entity = detectEntity(question);
+  if (!entity && previousQuestion && (FOLLOW_UP.test(s) || s.split(/\s+/).length <= 6)) entity = detectEntity(previousQuestion);
+  return { entity, facet: detectFacet(question) };
+}
+
 /** Splits "skills and certifications" style questions, answers each part, and merges distinct answers. */
 function routeMulti(question: string, memory: Memory): Reply {
   const parts = question.split(/\s+(?:and|also|plus|as well as|&)\s+|\s*[,;]\s*/i).map((p) => p.trim()).filter((p) => p.length > 1);
