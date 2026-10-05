@@ -12,6 +12,7 @@ import { Reveal } from "@/components/shared/reveal";
 import { CountUp } from "@/components/shared/count-up";
 import { cn } from "@/lib/utils";
 import { scrollToY } from "@/components/providers/smooth-scroll";
+import { useWheel, useWheelActive } from "@/components/wheel/wheel-context";
 import { PipelineScene } from "./pipeline-scene";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -24,6 +25,9 @@ export function Featured() {
   const reduce = useReducedMotion();
   const pinRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const wheel = useWheel();
+  const onGlobe = useWheelActive();
+  const sectionRef = useRef<HTMLElement>(null);
   const [stage, setStage] = useState(0);
   const [scrollDriven, setScrollDriven] = useState(false);
   const [userPicked, setUserPicked] = useState(false);
@@ -33,16 +37,22 @@ export function Featured() {
     mm.add(DESKTOP, () => {
       setScrollDriven(true);
       let last = -1;
+      const toStage = (p: number) => {
+        const s = Math.min(STAGES.length - 1, Math.floor(p * STAGES.length));
+        if (s !== last) { last = s; setStage(s); }
+      };
+      // on the section wheel, the stages play while the wheel holds on this block
+      if (wheel) {
+        const release = wheel.addHold({ el: sectionRef.current!, lengthVh: STAGES.length * 0.45, onProgress: toStage });
+        return () => { release(); setScrollDriven(false); };
+      }
       triggerRef.current = ScrollTrigger.create({
         trigger: pinRef.current,
         start: "top top",
         end: `+=${STAGES.length * 55}%`,
         pin: true,
         anticipatePin: 1,
-        onUpdate: (self) => {
-          const s = Math.min(STAGES.length - 1, Math.floor(self.progress * STAGES.length));
-          if (s !== last) { last = s; setStage(s); }
-        },
+        onUpdate: (self) => toStage(self.progress),
       });
       return () => { triggerRef.current = null; setScrollDriven(false); };
     });
@@ -61,8 +71,11 @@ export function Featured() {
   }, [scrollDriven, userPicked, reduce]);
 
   const pick = (i: number) => {
+    const onWheel = scrollDriven && sectionRef.current ? wheel?.holdScrollY(sectionRef.current, (i + 0.5) / STAGES.length) : null;
     const st = triggerRef.current;
-    if (st) {
+    if (onWheel != null) {
+      scrollToY(onWheel);
+    } else if (st) {
       scrollToY(st.start + ((i + 0.5) / STAGES.length) * (st.end - st.start));
     } else {
       setUserPicked(true);
@@ -73,8 +86,8 @@ export function Featured() {
   const shown = reduce ? STAGES.length - 1 : stage;
 
   return (
-    <section id="featured" aria-labelledby="featured-title" className="relative border-t border-line bg-ink-2">
-      <div className="mx-auto max-w-[1400px] px-4 pt-24 sm:px-6 lg:px-10 lg:pt-32">
+    <section ref={sectionRef} id="featured" aria-labelledby="featured-title" className="relative border-t border-line bg-ink-2/60">
+      <div className="mx-auto max-w-[1400px] px-4 pt-24 sm:px-6 lg:px-10">
         <SectionHeading
           index="02"
           eyebrow="Featured system · RoadGuard"
@@ -84,9 +97,9 @@ export function Featured() {
         />
       </div>
 
-      <div ref={pinRef} className="relative lg:motion-safe:h-[100svh]">
+      <div ref={pinRef} className={cn("relative", !onGlobe && "lg:motion-safe:h-[100svh]")}>
         <div className="mx-auto grid max-w-[1400px] items-center gap-8 px-4 py-12 sm:px-6 lg:h-full lg:grid-cols-[1.35fr_1fr] lg:gap-14 lg:px-10 lg:py-0">
-          <div className="flex min-w-0 flex-col gap-3 lg:pt-14">
+          <div className="flex min-w-0 flex-col gap-3 lg:pt-8">
             <PipelineScene stage={shown} />
             <div className="flex justify-between gap-4 font-mono text-[11px] text-dim">
               <span>Stage {shown + 1} of {STAGES.length} · {STAGES[shown].label}</span>
@@ -94,7 +107,7 @@ export function Featured() {
             </div>
           </div>
 
-          <ol className="flex min-w-0 flex-col lg:pt-14" aria-label="RoadGuard pipeline stages">
+          <ol className="flex min-w-0 flex-col lg:pt-8" aria-label="RoadGuard pipeline stages">
             {STAGES.map((s, i) => {
               const active = i === shown;
               const done = i < shown;

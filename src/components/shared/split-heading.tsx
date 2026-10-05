@@ -27,14 +27,14 @@ export function SplitHeading({ children, className, detect, id }: { children: Re
             el.style.paddingBottom = "0.18em";
             el.style.marginBottom = "-0.18em";
           });
-          return gsap.from(self.words, {
-            yPercent: 115,
-            rotate: 4,
-            duration: 1.1,
-            stagger: 0.05,
-            ease: "expo.out",
-            scrollTrigger: { trigger: ref.current, start: "top 88%", once: true },
-          });
+          // play once the heading is on screen (an observer, so it also works inside the section wheel)
+          const tween = gsap.from(self.words, { yPercent: 115, rotate: 4, duration: 1.1, stagger: 0.05, ease: "expo.out", paused: true });
+          const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) { tween.play(); io.disconnect(); }
+          }, { rootMargin: "0px 0px -12% 0px" });
+          io.observe(ref.current!);
+          tween.eventCallback("onInterrupt", () => io.disconnect());
+          return tween;
         },
       });
       return () => split.revert();

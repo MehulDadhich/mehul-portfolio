@@ -5,8 +5,8 @@ import { Reveal } from "@/components/shared/reveal";
 /** The internship, presented like the operator console the work fed into. */
 export function Experience() {
   return (
-    <section id="experience" aria-labelledby="experience-title" className="relative border-t border-line bg-ink-2">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+    <section id="experience" aria-labelledby="experience-title" className="relative border-t border-line bg-ink-2/60">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-24">
         <SectionHeading
           index="04"
           eyebrow="Experience"
