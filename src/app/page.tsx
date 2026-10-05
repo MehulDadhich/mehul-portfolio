@@ -8,6 +8,7 @@ import { Achievements } from "@/components/sections/achievements";
 import { Contact } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
 import { Ticker } from "@/components/shared/ticker";
+import { SectionWheel } from "@/components/wheel/section-wheel";
 import { profile } from "@/lib/content";
 import { siteUrl } from "@/lib/site";
 
@@ -32,18 +33,19 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
       <main id="main">
-        <Hero />
-        <Ticker items={["YOLO11", "26.9 ms p50", "LangGraph", "RTSP · FFmpeg", "0.849 F1", "FastAPI", "Qwen3-VL", "PostgreSQL", "CUDA · FP16", "ByteTrack", "6 months at Infrax.ai"]} />
-        <Featured />
-        <Projects />
-        <Experience />
-        <Skills />
-        <Journey />
-        <Achievements />
-        <Ticker reverse items={["Computer vision", "AI agents", "Real-time video", "Generative AI", "Backend systems", "Shipped to production"]} />
-        <Contact />
+        <SectionWheel
+          panels={[
+            { id: "top", label: "Intro", content: <><Hero /><Ticker items={["YOLO11", "26.9 ms p50", "LangGraph", "RTSP · FFmpeg", "0.849 F1", "FastAPI", "Qwen3-VL", "PostgreSQL", "CUDA · FP16", "ByteTrack", "6 months at Infrax.ai"]} /></> },
+            { id: "featured", label: "RoadGuard", content: <Featured /> },
+            { id: "work", label: "Work", content: <Projects /> },
+            { id: "experience", label: "Experience", content: <Experience /> },
+            { id: "skills", label: "Skills", content: <Skills /> },
+            { id: "journey", label: "Journey", content: <Journey /> },
+            { id: "achievements", label: "Achievements", content: <Achievements /> },
+            { id: "contact", label: "Contact", content: <><Ticker reverse items={["Computer vision", "AI agents", "Real-time video", "Generative AI", "Backend systems", "Shipped to production"]} /><Contact /><Footer /></> },
+          ]}
+        />
       </main>
-      <Footer />
     </>
   );
 }

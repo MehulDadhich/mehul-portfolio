@@ -19,7 +19,7 @@ export function Skills() {
 
   return (
     <section id="skills" aria-labelledby="skills-title" className="relative border-t border-line">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-24">
         <SectionHeading
           index="05"
           eyebrow="Skills"

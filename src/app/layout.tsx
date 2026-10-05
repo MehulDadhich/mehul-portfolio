@@ -5,6 +5,7 @@ import { Nav } from "@/components/shared/nav";
 import { EasterEgg } from "@/components/shared/easter-egg";
 import { DetectionCursor } from "@/components/shared/detection-cursor";
 import { Assistant } from "@/components/assistant/assistant";
+import { LidarBackdrop } from "@/components/shared/lidar-backdrop";
 import { siteDescription, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -45,7 +46,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable} ${mona.variable} antialiased`}>
-      <body className="min-h-svh bg-ink text-fg">
+      <body className="isolate min-h-svh bg-ink text-fg">
         <noscript>
           <style>{`.boot-hide{visibility:visible!important}`}</style>
         </noscript>
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <SmoothScroll />
+        <LidarBackdrop />
         <Nav />
         {children}
         <EasterEgg />

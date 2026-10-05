@@ -27,7 +27,7 @@ export function Projects() {
 
   return (
     <section id="work" aria-labelledby="work-title" className="relative border-t border-line">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-4 py-24 sm:px-6 lg:px-10 lg:py-24">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
             index="03"

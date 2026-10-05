@@ -9,6 +9,7 @@ import { ArrowDown, Download } from "lucide-react";
 import { profile } from "@/lib/content";
 import { scrollToId } from "@/components/providers/smooth-scroll";
 import { Magnetic } from "@/components/shared/magnetic";
+import { useWheel } from "@/components/wheel/wheel-context";
 import { SignalPath } from "./signal-path";
 import { DiffusionName } from "./diffusion-name";
 import {
@@ -49,6 +50,7 @@ export function Hero() {
   const links = useRef<HTMLCanvasElement>(null);
   // 0 → links hidden, 1 → fully drawn. Driven by the boot sequence and by scroll.
   const linkAlpha = useRef({ boot: 0, scroll: 1 });
+  const wheel = useWheel();
 
   useGSAP(
     () => {
@@ -104,8 +106,8 @@ export function Hero() {
         const movers = tilts.map((t) => ({
           x: gsap.quickTo(t, "x", { duration: 0.9, ease: "power3.out" }),
           y: gsap.quickTo(t, "y", { duration: 0.9, ease: "power3.out" }),
-          ry: gsap.quickTo(t, "rotateY", { duration: 0.9, ease: "power3.out" }),
-          rx: gsap.quickTo(t, "rotateX", { duration: 0.9, ease: "power3.out" }),
+          ry: gsap.quickTo(t, "rotationY", { duration: 0.9, ease: "power3.out" }),
+          rx: gsap.quickTo(t, "rotationX", { duration: 0.9, ease: "power3.out" }),
         }));
         let amp = 1;
         const onMove = (e: PointerEvent) => {
@@ -120,22 +122,22 @@ export function Hero() {
         };
         root.addEventListener("pointermove", onMove);
 
-        // scroll: scatter → fanned deck → grid
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: root,
-            start: "top top",
-            end: "+=210%",
-            scrub: 0.9,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              linkAlpha.current.scroll = gsap.utils.clamp(0, 1, 1 - self.progress / 0.12);
-              amp = gsap.utils.clamp(0.25, 1, 1 - self.progress * 1.2);
-            },
-          },
-        });
+        // scroll: scatter → fanned deck → grid. On the section wheel the hero holds the wheel while this plays;
+        // without it, the hero pins itself to the page.
+        const onProgress = (p: number) => {
+          linkAlpha.current.scroll = gsap.utils.clamp(0, 1, 1 - p / 0.12);
+          amp = gsap.utils.clamp(0.25, 1, 1 - p * 1.2);
+        };
+        const tl = gsap.timeline(
+          wheel
+            ? { paused: true }
+            : {
+                scrollTrigger: {
+                  trigger: root, start: "top top", end: "+=210%", scrub: 0.9, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+                  onUpdate: (self) => onProgress(self.progress),
+                },
+              }
+        );
         tl.to(q("[data-line]"), { yPercent: -110, duration: 0.3, stagger: 0.05, ease: "power2.in" }, 0)
           .to(intro.current, { autoAlpha: 0, duration: 0.22 }, 0.12)
           .to(q("[data-rise]"), { autoAlpha: 0, y: -30, duration: 0.25, stagger: 0.03, ease: "power1.in" }, 0.02)
@@ -145,15 +147,38 @@ export function Hero() {
             { x: (i) => stackX(i), y: (i) => stackY(i), rotation: (i) => (i - 2.5) * 7, scale: 0.64, duration: 0.32, ease: "power2.inOut", stagger: 0.015 },
             0.06
           )
-          .to(frames, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.42, ease: "power3.inOut", stagger: { each: 0.03, from: "center" } }, 0.44)
-          .fromTo(heading.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0.5)
-          .from(q("[data-heading-word]"), { yPercent: 110, duration: 0.25, stagger: 0.025, ease: "power3.out" }, 0.5)
-          .fromTo(q("[data-heading-sub]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.15 }, 0.66)
-          .fromTo(q("[data-frame-footer]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15, stagger: 0.03 }, 0.78)
-          .fromTo(q("[data-frame-sweep]"), { xPercent: -120 }, { xPercent: 120, duration: 0.2, stagger: 0.03, ease: "none" }, 0.8)
+          .to(frames, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.4, ease: "power3.inOut", stagger: { each: 0.03, from: "center" } }, 0.3)
+          .fromTo(heading.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0.3)
+          .from(q("[data-heading-word]"), { yPercent: 110, duration: 0.25, stagger: 0.025, ease: "power3.out" }, 0.3)
+          .fromTo(q("[data-heading-sub]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.15 }, 0.46)
+          .fromTo(q("[data-frame-footer]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15, stagger: 0.03 }, 0.6)
+          .fromTo(q("[data-frame-sweep]"), { xPercent: -120 }, { xPercent: 120, duration: 0.2, stagger: 0.03, ease: "none" }, 0.62)
           .to({}, { duration: 0.12 });
 
-        return () => root.removeEventListener("pointermove", onMove);
+        let release = () => {};
+        let onResize = () => {};
+        if (wheel) {
+          // scrub: ease toward the scroll position instead of jumping to it
+          const scrub = { p: 0 };
+          let target = -1;
+          release = wheel.addHold({
+            el: root,
+            lengthVh: 1.6,
+            onProgress: (p) => {
+              if (p === target) return;
+              target = p;
+              gsap.to(scrub, { p, duration: 0.9, ease: "power3.out", overwrite: true, onUpdate: () => { tl.progress(scrub.p); onProgress(scrub.p); } });
+            },
+          });
+          onResize = () => { tl.invalidate(); tl.progress(scrub.p); };
+          window.addEventListener("resize", onResize);
+        }
+
+        return () => {
+          root.removeEventListener("pointermove", onMove);
+          window.removeEventListener("resize", onResize);
+          release();
+        };
       });
 
       /* ---------- Phones / tablets: frames swing in as they scroll into view ---------- */

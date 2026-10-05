@@ -330,3 +330,14 @@ html[data-detect="on"] [data-detect-label]::after {
 @media (prefers-reduced-motion: no-preference) {
   .boot-hide { visibility: hidden; }
 }
+
+/* Section wheel (desktop): a section turns into a framed card while the wheel rotates; --frame goes 0 → 1 */
+.wheel-panel {
+  border-radius: calc(var(--frame, 0) * 40px);
+  background: rgb(10 11 16 / calc(var(--frame, 0) * 0.6));
+  box-shadow:
+    0 0 0 calc(var(--frame, 0) * 2px) rgb(233 196 106 / calc(var(--frame, 0) * 0.55)),
+    0 50px 140px -30px rgb(0 0 0 / calc(var(--frame, 0) * 0.85));
+}
+/* until the wheel has placed them, only the first section is shown */
+[data-wheel="on"] .wheel-panel:not(:first-child) { visibility: hidden; }

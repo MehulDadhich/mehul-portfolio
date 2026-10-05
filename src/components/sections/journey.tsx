@@ -6,15 +6,18 @@ import { journey, profile } from "@/lib/content";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Reveal } from "@/components/shared/reveal";
 import { cn } from "@/lib/utils";
+import { useWheelHoldProgress } from "@/components/wheel/wheel-context";
 
 export function Journey() {
   const listRef = useRef<HTMLOListElement>(null);
   const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 55%"] });
-  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+  // on the globe, the globe holds here until the timeline has fully drawn
+  const progress = useWheelHoldProgress(listRef, 1.1, scrollYProgress);
+  const fill = useSpring(progress, { stiffness: 120, damping: 30 });
 
   return (
-    <section id="journey" aria-labelledby="journey-title" className="relative border-t border-line bg-ink-2">
-      <div className="mx-auto grid max-w-[1400px] gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-20 lg:px-10 lg:py-32">
+    <section id="journey" aria-labelledby="journey-title" className="relative border-t border-line bg-ink-2/60">
+      <div className="mx-auto grid max-w-[1400px] gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-20 lg:px-10 lg:py-24">
         <div className="flex flex-col gap-8 lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
             index="06"
