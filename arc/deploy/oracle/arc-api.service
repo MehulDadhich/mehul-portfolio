@@ -1,0 +1,15 @@
+[Unit]
+Description=Arc API (FastAPI)
+After=network-online.target arc-llama.service
+Wants=network-online.target arc-llama.service
+
+[Service]
+User=arc
+WorkingDirectory=/opt/arc/server
+# settings and secrets come from /opt/arc/.env, which the app reads itself
+ExecStart=/opt/arc/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

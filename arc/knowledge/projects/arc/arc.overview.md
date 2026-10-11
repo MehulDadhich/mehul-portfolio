@@ -1,0 +1,4 @@
+<!-- arc: {"id":"arc.overview","title":"Arc","keys":["arc project","rag assistant","portfolio assistant","this assistant","this chatbot","fine-tune","fine-tuning","finetune","qlora","lora","qwen2.5","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See Arc","section":"work"}],"entity":"arc","facet":"overview"} -->
+# Arc
+
+**Arc** (RAG assistant on this site, with a QLoRA fine-tune). Recruiters arrive with specific questions, like whether he has used Firebase or whether a project's code is public. A static page can't answer them, and a generic chatbot makes things up. A retrieval-augmented generation (RAG) assistant on a self-hosted open-weight model. It answers only from facts retrieved from this site, remembers each visitor's conversation and acts on the page after asking. Its earlier model was fine-tuned with QLoRA and evaluated against the base model on held-out questions.

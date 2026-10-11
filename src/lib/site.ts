@@ -15,4 +15,4 @@ export const siteUrl = resolveSiteUrl().replace(/\/$/, "");
 
 export const siteTitle = "Mehul Dadhich | AI/ML Engineer";
 export const siteDescription =
-  "Mehul Dadhich is an AI/ML engineer working across computer vision, NLP and LLM-powered agents, taking models from training and evaluation to optimised inference and production APIs.";
+  "Mehul Dadhich is an AI/ML engineer working across computer vision, vision-language models, RAG and LLM agents, taking models from fine-tuning and evaluation to optimised inference and production APIs.";

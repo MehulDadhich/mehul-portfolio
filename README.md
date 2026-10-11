@@ -24,9 +24,9 @@ and the contact page is a live LiDAR scan.
 | **Scroll-driven case study** | RoadGuard, my accident-detection pipeline, is pinned while you scroll through *Video → YOLO → Tracking → LSTM → VLM → Alert*. An illustrative simulation adds boxes, track IDs, the LSTM score, the VLM verdict and the alert at each stage. |
 | **Projects as architectures** | Filterable project cards whose pipelines light up on hover, with an *Explore architecture* view for each system. |
 | **Evidence-linked skills** | Pick a project to see which skills it used, or hover a skill to see where it came from. |
-| **Arc, the on-site assistant** | A generative RAG assistant with no third-party AI. Questions go through hybrid retrieval (BM25 + `bge-small` embeddings) over a knowledge base generated from the site's content, then an open-weight model (Qwen2.5-1.5B-Instruct via llama.cpp) writes a grounded answer that streams into the chat. Arc shows the pipeline steps it ran, and falls back to an in-browser retrieval engine if the model is asleep. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. See [Arc's architecture](#arc-generative-rag-assistant). |
+| **Arc, the on-site AI assistant** | A generative RAG assistant with no third-party AI: hybrid retrieval (BM25 + `bge-small` embeddings) over a knowledge base generated from the site's content, conversation memory, and an open-weight model (Llama 3.2 3B Instruct via llama.cpp) that writes every answer. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. See [`arc/README.md`](arc/README.md). |
 | **LiDAR contact section** | A street rendered as a 3D point cloud with a sweeping scan ring. The cursor orbits the camera. |
-| **Small details** | A detection-box cursor that labels whatever you point at, count-up metrics, scroll-velocity tickers and a footer signature that fills with gold as you reach the end. |
+| **Small details** | A detection-box cursor that labels whatever you point at, count-up metrics and a footer signature that fills with gold as you reach the end. |
 
 <p align="center">
   <img src="docs/capabilities.png" alt="Capability frames settled into a grid" width="49%" />
@@ -72,7 +72,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Project structure
 
 ```
-arc-space/                    # Arc's generative backend (Docker: FastAPI + llama.cpp)
+arc/                          # Arc: API server, knowledge base, setup/run scripts (see arc/README.md)
 src/
 ├── app/
 │   ├── layout.tsx            # fonts, metadata, providers, nav, cursor, palette
@@ -86,13 +86,12 @@ src/
 │   ├── featured/             # pinned RoadGuard pipeline + canvas simulation
 │   ├── projects/             # filterable cards and architecture views
 │   ├── sections/             # experience, skills, journey, certifications, contact, footer
-│   ├── shared/               # nav, cursor, reveals, ticker, tilt card…
+│   ├── shared/               # nav, cursor, reveals, tilt card…
 │   ├── providers/            # Lenis + GSAP ScrollTrigger wiring
 │   └── ui/                   # shadcn/ui primitives
 ├── hooks/                    # visibility-aware canvas loop
-│   (app/api/arc/)            # Arc proxy route + knowledge endpoint
 └── lib/
-    ├── assistant/            # Arc: knowledge base + retrieval engine
+    ├── assistant/            # Arc: knowledge base (exported to arc/knowledge), visitor identity
     ├── content.ts            # ← every word on the site lives here
     └── site.ts               # site URL, title and description
 ```
@@ -104,45 +103,17 @@ src/
 - **Colours:** change the tokens at the top of [`src/app/globals.css`](src/app/globals.css). The `.screen` block styles the small dark "device screens".
 - **Domain:** set `NEXT_PUBLIC_SITE_URL` (or change `PRODUCTION_URL` in [`src/lib/site.ts`](src/lib/site.ts)) so canonical links, Open Graph images and the sitemap use your domain.
 
-## Arc: generative RAG assistant
-
-```
-Browser (Arc panel) ──► /api/arc  (Vercel route: validation, rate limit, holds the secret)
-                              │
-                              ▼
-          Arc model server "arc-space"   (FastAPI · arc-space/, Docker)
-          ├─ knowledge   ◄── GET /api/arc/knowledge   (generated from src/lib/content.ts)
-          ├─ retrieval   = BM25 + BAAI/bge-small-en-v1.5 embeddings, hybrid-scored
-          └─ generation  = Qwen2.5-1.5B-Instruct (GGUF, llama.cpp, CPU) → NDJSON stream
-```
-
-- **No third-party AI API.** Both models are open weights running inside the Space.
-- **Grounded.** The system prompt restricts answers to the retrieved context; Arc says when it doesn't know.
-- **Always on.** If the Space is asleep or unreachable, `/api/arc` returns 503 and the browser answers with the local engine in `src/lib/assistant/` (intent router + BM25).
-- **Swappable model.** Point `ARC_MODEL_REPO` / `ARC_MODEL_FILE` at a fine-tuned GGUF to change Arc's brain without touching code.
-
-### Deploying Arc's model server
-
-`arc-space/` is a plain Docker app, so it runs on any Linux machine. The reference setup is an
-**Oracle Cloud Always Free** ARM VM (4 OCPU, 24 GB RAM), fronted by Caddy for automatic HTTPS:
-
-1. Create an Ubuntu VM (shape `VM.Standard.A1.Flex`) and allow TCP 80 and 443 in its subnet's security list.
-2. SSH in and run:
-   ```bash
-   bash <(curl -fsSL https://raw.githubusercontent.com/MehulDadhich/mehul-portfolio/main/arc-space/deploy/setup-oci.sh)
-   ```
-   It installs Docker, builds the service, opens the firewall and prints the HTTPS address (`<ip>.sslip.io`).
-3. In Vercel, set `ARC_SPACE_URL` to that address and `ARC_API_KEY` to the same key, then redeploy.
-
-The same folder also works as a Hugging Face Docker Space (needs a PRO plan) via `arc-space/README.md`.
-
 ## Deployment
 
 The site is fully static, so it deploys to [Vercel](https://vercel.com) with no configuration:
 
 1. Push the repo to GitHub and import it in Vercel.
-2. Add the environment variable `NEXT_PUBLIC_SITE_URL=https://your-domain` (and `ARC_SPACE_URL` / `ARC_API_KEY` for generative Arc).
+2. Add the environment variable `NEXT_PUBLIC_SITE_URL=https://your-domain`.
 3. Deploy.
+
+Arc's backend (its own model and API) is deployed separately, to a free Oracle Cloud VM; Vercel then needs
+`ARC_API_URL`, `ARC_API_KEY` and the `NEXT_PUBLIC_FIREBASE_*` variables. See
+[arc/README.md](arc/README.md#deploying-free-oracle-cloud-always-free).
 
 ## Performance and accessibility
 

@@ -20,7 +20,8 @@ export const metadata: Metadata = {
   applicationName: "Mehul Dadhich",
   authors: [{ name: "Mehul Dadhich", url: "https://github.com/MehulDadhich" }],
   keywords: [
-    "Mehul Dadhich", "AI engineer", "ML engineer", "computer vision", "YOLO", "LLM agents", "LangGraph",
+    "Mehul Dadhich", "AI engineer", "ML engineer", "computer vision", "YOLO", "vision-language models", "LLM agents",
+    "agentic AI", "LangGraph", "RAG", "QLoRA", "model evaluation", "inference optimization",
     "FastAPI", "real-time video analytics", "VIT-AP",
   ],
   alternates: { canonical: "/" },

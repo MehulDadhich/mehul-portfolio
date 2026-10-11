@@ -1,0 +1,4 @@
+<!-- arc: {"id":"warehouse.overview","title":"Warehouse Monitoring System","keys":["warehouse","warehouse monitoring","vaultsense","anpr","number plate","licence plate","license plate","ocr","easyocr","plate recognition","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See Warehouse Monitoring System","section":"work"},{"label":"Code on GitHub","href":"https://github.com/MehulDadhich/Warehouse-Monitoring-System"}],"entity":"warehouse","facet":"overview"} -->
+# Warehouse Monitoring System
+
+**Warehouse Monitoring System** (Warehouse intelligence platform). Warehouses run many cameras but still log vehicles and people by hand, and operators find out a camera is down only when they need its footage. A full-stack platform that runs YOLO11 on RTSP cameras, reads licence plates at the gate, streams events to live dashboards and gives each role the controls it needs.

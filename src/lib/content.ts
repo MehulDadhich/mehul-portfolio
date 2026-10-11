@@ -14,7 +14,7 @@ export const profile = {
   github: "https://github.com/MehulDadhich",
   resume: "/Mehul-Dadhich-Resume.pdf",
   statement:
-    "I build machine-learning systems across computer vision, NLP and LLM-powered agents, and I take them past the notebook: training and evaluating models, optimising inference, and shipping them behind APIs and data pipelines that real products depend on.",
+    "I build AI systems across computer vision, vision-language models, voice AI, RAG and LLM agents, and I take them past the notebook: fine-tuning and evaluating models, optimising inference, and shipping them behind APIs and data pipelines that real products depend on.",
   summary:
     "AI/ML engineer with six months of industry internship experience building and deploying real-time computer-vision systems and developing LLM-powered agent and NLP applications.",
 } as const;
@@ -51,26 +51,26 @@ export const projects: Project[] = [
   {
     id: "roadguard",
     title: "RoadGuard",
-    kicker: "Real-time accident detection",
-    categories: ["cv"],
+    kicker: "Two-tier accident detection with a VLM",
+    categories: ["cv", "genai"],
     featured: true,
     problem:
       "Highway CCTV produces hours of footage that nobody watches live. Accidents need to be caught in seconds without drowning operators in false alarms from normal traffic.",
     solution:
-      "A streaming pipeline that detects vehicles, tracks them over time, reads their motion with an LSTM and asks a vision-language model to verify the event before raising one alert with evidence.",
-    stack: ["Python", "Ultralytics YOLO", "ByteTrack", "PyTorch LSTM", "Qwen3-VL", "OpenCV", "FFmpeg", "CUDA / FP16"],
+      "A two-tier pipeline that runs fully offline. Tier 1 runs on every frame: detection, tracking and a kinematic rules engine raise an immediate alert. Tier 2 sends uncertain events to a local vision-language model, which confirms or rejects them with a yes or no.",
+    stack: ["Python", "YOLOv8s", "ByteTrack", "Qwen3-VL", "PyTorch", "Hugging Face Transformers", "TensorRT", "OpenCV", "pytest"],
     architecture: [
-      { id: "video", label: "Video in", detail: "Video files, webcams and RTSP streams. A threaded single-frame buffer drops stale frames so latency never grows on live streams." },
-      { id: "yolo", label: "YOLO", detail: "Ultralytics YOLO at 640 px inference with a 0.50 confidence threshold, automatic CUDA/CPU selection and FP16 on CUDA." },
-      { id: "track", label: "Tracking", detail: "Multi-object tracking keeps a persistent ID on every vehicle, so the system reasons about motion over time instead of single frames." },
-      { id: "lstm", label: "LSTM", detail: "A 30-step LSTM reads trajectory and interaction features to separate potential accidents from normal traffic interactions." },
-      { id: "vlm", label: "VLM", detail: "A vision-language model verifies the candidate event on the frames around it before anything reaches an operator." },
-      { id: "alert", label: "Alert", detail: "An event state machine creates one best-confidence snapshot and one H.264 clip of up to 30 seconds per accident, tolerating 0.75-second detection gaps." },
+      { id: "video", label: "Video in", detail: "RTSP cameras, webcams and files. Live sources reconnect with backoff when a camera drops, and a 5-second frame buffer in memory keeps recent frames for the VLM." },
+      { id: "detect", label: "Detect", detail: "Two YOLOv8s models merged into one class space: one fine-tuned on Indian highway cameras for cars, motorcycles, buses and trucks, and stock COCO weights for pedestrians and cyclists. A TensorRT INT8 engine runs when available, PyTorch FP16 otherwise." },
+      { id: "track", label: "Track", detail: "ByteTrack keeps a persistent ID on every road user, and a track counts only after three confirming detections." },
+      { id: "rules", label: "Rules", detail: "Tier 1. A kinematic rules engine reads new box overlaps, sudden speed drops in km/h, vanishing vehicles and pile-ups, and fuses two different weak signals into one event. Events at confidence 0.6 or above alert immediately." },
+      { id: "vlm", label: "VLM", detail: "Tier 2. Uncertain events, events involving pedestrians or two-wheelers, and a scan every 30 seconds go to a local Qwen3-VL-2B on its own thread. It answers only yes or no, so Tier 1 never waits for it." },
+      { id: "alert", label: "Incident", detail: "Each accident becomes one incident with at most one immediate alert and one VLM confirmation, logged with snapshots and sent to webhook or SMS endpoints on the local network. A health file reports the pipeline's status every 5 seconds." },
     ],
     highlights: [
-      "Validated model and class maps at start-up",
-      "One snapshot and one clip per accident, not one per frame",
-      "Survives detection gaps of up to 0.75 s",
+      "Fully offline: no frame leaves the site",
+      "Evaluated on held-out benchmark clips and a 6.5-hour shadow run on five site cameras",
+      "Whole pipeline in 4.26 GB of GPU memory on a 6 GB laptop GPU",
     ],
     linkNote: "Code walkthrough available on request",
   },
@@ -124,6 +124,82 @@ export const projects: Project[] = [
     github: "https://github.com/MehulDadhich/ai-task-manager",
   },
   {
+    id: "astra",
+    title: "ASTRA",
+    kicker: "Industry · Infrax.ai · AI operations agent",
+    categories: ["genai", "industry"],
+    problem:
+      "Operators of Cygnus, Infrax.ai's video management system, work across dozens of pages and a constant stream of cameras, events and incidents. A simple question like \u201cwhat needs my attention?\u201d or \u201cis PTS2134 online?\u201d takes many clicks.",
+    solution:
+      "An AI assistant built into Cygnus. Operators ask in plain language, and an agent answers from live data through tools that run with the operator's own permissions and site scope, explains features from the product docs, and proposes changes behind a confirmation card. It runs on a self-hosted Qwen3-4B on CPU.",
+    stack: ["TypeScript", "Node.js", "Fastify", "React", "Python", "FastAPI", "llama.cpp", "Qwen3-4B", "BM25", "bge-small embeddings", "PostgreSQL", "Prometheus", "Vitest", "pytest"],
+    architecture: [
+      { id: "ask", label: "Ask", detail: "An ASTRA panel on every page of Cygnus. Operators ask about cameras, recordings, events, incidents and the estate, or ask to be taken to a page." },
+      { id: "fastpath", label: "Fast path", detail: "Common questions, such as counts, today's incidents or a camera's status, are recognised in code and answered from live data in about 0.1 s, without the model." },
+      { id: "agent", label: "Agent", detail: "Everything else goes to an agent loop on the Node server, where Qwen3-4B picks from dozens of tools. Each tool calls the server's own routes with the operator's token, so permissions and site scope always apply." },
+      { id: "rag", label: "Docs RAG", detail: "Feature questions are answered from the product docs: BM25 and bge-small search fused with reciprocal rank fusion, with chunks that name an exact identifier ranked first." },
+      { id: "confirm", label: "Confirm", detail: "Changes such as PTZ moves, renames or tracking a number plate are proposed as a confirmation card and run only when the operator confirms. Admin-only changes are escalated to administrators." },
+      { id: "inference", label: "Inference", detail: "Qwen3-4B Q4_K_M on llama.cpp, on CPU, behind a token-protected service with Prometheus metrics. The warmed prompt is saved and restored, so a restart is ready in 6 s instead of 51 s." },
+    ],
+    highlights: [
+      "Answers respect each operator's permissions and site scope",
+      "Code-written answers for common questions in about 0.1 s",
+      "Cold start cut from 51 s to 6 s with a saved prompt cache",
+    ],
+    linkNote: "Proprietary work at Infrax.ai",
+  },
+  {
+    id: "arc",
+    title: "Arc",
+    kicker: "RAG assistant on this site, with a QLoRA fine-tune",
+    categories: ["genai", "fullstack"],
+    problem:
+      "Recruiters arrive with specific questions, like whether he has used Firebase or whether a project's code is public. A static page can't answer them, and a generic chatbot makes things up.",
+    solution:
+      "A retrieval-augmented generation (RAG) assistant on a self-hosted open-weight model. It answers only from facts retrieved from this site, remembers each visitor's conversation and acts on the page after asking. Its earlier model was fine-tuned with QLoRA and evaluated against the base model on held-out questions.",
+    stack: ["Python", "FastAPI", "llama.cpp", "Llama 3.2 3B", "Qwen2.5-1.5B", "QLoRA / PEFT", "bitsandbytes", "BM25", "bge-small embeddings", "Firebase", "Next.js", "pytest"],
+    architecture: [
+      { id: "search", label: "Hybrid search", detail: "The site's content is exported into a knowledge base. BM25 keyword search and bge-small dense embeddings are fused, with a boost for the project being asked about and a relevance floor that drops weak matches." },
+      { id: "prompt", label: "Prompt", detail: "Instructions, the visitor's notes, the retrieved facts and the recent turns are packed into a 3,000-token budget." },
+      { id: "llm", label: "Llama 3.2 3B", detail: "Served by llama.cpp as a 4-bit GGUF and streamed token by token. The model sits behind one interface, so switching to a hosted model is a configuration change." },
+      { id: "actions", label: "Actions", detail: "Rules decide when a message asks for an action: scroll to a section, download the resume, open a repository. Arc offers it with Yes and No buttons and runs it only after the visitor agrees." },
+      { id: "memory", label: "Memory", detail: "Conversations and short notes about the visitor are stored in Firestore under an anonymous Firebase sign-in, so no visitor can read another's." },
+      { id: "qlora", label: "QLoRA fine-tune", detail: "Qwen2.5-1.5B in 4-bit NF4 with rank-16 LoRA adapters on every projection (18.5M trainable parameters, 1.18%), trained on 745 grounded examples built from Arc's own retrieval in 46 minutes on an RTX 3050, then merged and quantized to GGUF." },
+      { id: "eval", label: "Evaluation", detail: "Base and fine-tuned models compared on 105 held-out questions, scored on the facts each answer must contain. A later Qwen3-4B fine-tune scored below its base model, so Arc now serves a stock model with stronger retrieval." },
+    ],
+    highlights: [
+      "QLoRA fact recall: 71% → 90% on document questions, 46% → 76% on reasoning",
+      "Self-hosted open-weight model, no third-party AI API",
+      "70 automated tests for retrieval, prompts, actions and memory",
+    ],
+    linkNote: "Running on this site: press Ctrl + K",
+  },
+  {
+    id: "rehearse",
+    title: "Rehearse",
+    kicker: "AI mock interviewer with voice and a scored debrief",
+    categories: ["genai", "fullstack"],
+    problem:
+      "Interview practice usually means reading questions off a list. Nobody asks a follow-up when an answer is vague, and nobody says afterwards what was actually weak about it.",
+    solution:
+      "A voice-first mock interviewer. It speaks each question, listens to the spoken answer, probes vague answers with follow-ups like a real first round, and ends with a written debrief scored against a rubric, with a stronger version of every answer.",
+    stack: ["Python", "FastAPI", "Groq", "gpt-oss-120b", "Whisper", "Web Speech API", "React", "Vite", "Framer Motion", "Vercel"],
+    architecture: [
+      { id: "setup", label: "Setup", detail: "The candidate picks a role, seniority, style (behavioral, technical or mixed) and length, can paste a job description to tailor the questions, and tests the mic." },
+      { id: "voice", label: "Voice", detail: "The browser's Web Speech API speaks each question and transcribes the answer, sent after a short pause. If the browser's speech service is unreachable, the answer is recorded and transcribed on the server with Whisper large-v3-turbo." },
+      { id: "interviewer", label: "Interviewer", detail: "gpt-oss-120b on Groq replies with JSON: what to say, and whether it is a new question, a follow-up or the close. Every reply is checked against a JSON Schema and requested again if it is invalid or cut off." },
+      { id: "state", label: "State machine", detail: "The FastAPI server, not the model, keeps the interview on track: it counts main questions, caps follow-ups at two per question, and tells the model when to move on or wrap up, so every interview ends on time." },
+      { id: "proctor", label: "Proctoring", detail: "Leaving the tab gives a warning and the third ends the interview. Browser extensions that change the page, such as AI sidebars and writing assistants, are detected and block the start." },
+      { id: "debrief", label: "Debrief", detail: "The full transcript is scored by the model as a judge, against a rubric: an overall score, five dimensions (clarity, depth, structure, relevance, evidence), notes per question, a stronger answer in the candidate's own words and what to practise next. Exportable as PDF." },
+    ],
+    highlights: [
+      "Real follow-ups on vague answers, with the server enforcing the interview's length",
+      "Every model reply validated against a JSON Schema and retried if invalid",
+      "Server-side Whisper fallback when the browser can't do speech recognition",
+    ],
+    github: "https://github.com/MehulDadhich/ai-mock-interviewer",
+  },
+  {
     id: "tmcs",
     title: "Traffic Management & Control System",
     kicker: "Industry · Infrax.ai",
@@ -150,30 +226,30 @@ export const projects: Project[] = [
   },
 ];
 
-/** Measured results from the RoadGuard repositories' READMEs and reports. */
+/** Measured results from the RoadGuard repository's README and evaluation reports. */
 export const roadguardMetrics = [
-  { value: "0.849", label: "Detector F1", note: "1,168 frames · 2,868 boxes · IoU 0.5" },
-  { value: "99.14%", label: "LSTM recall", note: "Held-out public test · 61.66% specificity" },
-  { value: "26.9 ms", label: "Detection latency p50", note: "Per frame, two-tier build · RTX 3050 laptop" },
-  { value: "56 s", label: "Early hazard warning", note: "Stopped-vehicle alert before impact on a test clip" },
+  { value: "25.2 ms", label: "Tier-1 latency p50", note: "Per frame · held-out test clips · RTX 3050 laptop" },
+  { value: "0.47 s", label: "VLM verdict p50", note: "Yes/no prompt · down from 5.5 s" },
+  { value: "3.6 s", label: "Median time to alert", note: "After impact · 145 held-out accident clips" },
+  { value: "4.26 GB", label: "Peak GPU memory", note: "Two YOLO models + Qwen3-VL-2B · 6 GB GPU" },
 ];
 
 export const roadguardLessons = [
   {
     title: "One rule is never enough",
-    body: "In a real side impact the two boxes peaked at IoU 0.21, under the 0.3 contact threshold. I added a multi-signal rule that combines weaker cues so impacts like that one are not missed.",
+    body: "In a real side impact the two boxes peaked at IoU 0.21, under the 0.3 contact threshold. A multi-signal rule now fuses two different weak cues, here a sudden stop and a vanishing vehicle 0.04 s apart, so impacts like that one are caught.",
   },
   {
     title: "Ask the VLM a smaller question",
-    body: "Switching the verifier from a detailed JSON prompt to a yes/no question cut median VLM latency from 5.5 s to 0.47 s.",
+    body: "Switching the verifier from a detailed JSON prompt to a yes/no question cut median VLM latency from 5.5 s to 0.47 s, and Tier 1 got its GPU time back.",
   },
   {
-    title: "Small objects need more pixels",
-    body: "Motorcycles were nearly invisible at 768 px. Running 1280 px inference over 3×3 tiles raised the share of frames with a motorcycle detection on a test clip from 1.7% to 42.9%.",
+    title: "Precision before model size",
+    body: "Quantized to 4-bit, Qwen3-VL-2B said “accident” to nearly every normal-traffic frame. In bf16 it rejected 11 of 11 normal frames and still confirmed 9 of 9 crashes.",
   },
   {
-    title: "Operators need incidents, not alerts",
-    body: "Grouping related hazard events turned 14 separate alerts for a single incident into one incident record.",
+    title: "Give the VLM less context",
+    body: "Listing every vehicle in view made the VLM read unrelated vehicles as a collision. Listing only the tracks the rule flagged took normal frames rejected from 0 of 3 to 3 of 3.",
   },
 ];
 
@@ -198,6 +274,9 @@ export const evidence: Evidence[] = [
   { id: "roadguard", label: "RoadGuard" },
   { id: "warehouse", label: "Warehouse Monitoring" },
   { id: "task-agent", label: "AI Task Manager" },
+  { id: "astra", label: "ASTRA" },
+  { id: "arc", label: "Arc" },
+  { id: "rehearse", label: "Rehearse" },
 ];
 
 export type SkillGroup = { id: string; label: string; skills: { name: string; used: string[] }[] };
@@ -206,51 +285,124 @@ export const skillGroups: SkillGroup[] = [
     id: "cv",
     label: "Computer Vision",
     skills: [
-      { name: "YOLOv8", used: ["tmcs"] },
+      { name: "YOLOv8", used: ["tmcs", "roadguard"] },
       { name: "YOLO11", used: ["tmcs", "warehouse"] },
       { name: "Ultralytics", used: ["roadguard", "warehouse"] },
       { name: "OpenCV", used: ["tmcs", "roadguard", "warehouse"] },
       { name: "Object detection", used: ["tmcs", "roadguard", "warehouse"] },
       { name: "Object tracking", used: ["roadguard", "warehouse"] },
-      { name: "LSTM", used: ["roadguard"] },
-      { name: "VLM", used: ["roadguard"] },
+      { name: "Detector fine-tuning", used: ["roadguard"] },
+      { name: "LSTM", used: [] },
     ],
   },
   {
-    id: "genai",
-    label: "Generative AI & NLP",
+    id: "vlm",
+    label: "Vision-Language Models",
     skills: [
-      { name: "LLM applications", used: ["task-agent"] },
-      { name: "AI agents", used: ["task-agent"] },
+      { name: "Qwen3-VL", used: ["roadguard"] },
+      { name: "VLM verification", used: ["roadguard"] },
+      { name: "Multimodal prompting", used: ["roadguard"] },
+      { name: "VLM benchmarking", used: ["roadguard"] },
+    ],
+  },
+  {
+    id: "voice",
+    label: "Speech & Voice AI",
+    skills: [
+      { name: "Speech-to-text (Whisper)", used: ["rehearse"] },
+      { name: "Text-to-speech", used: ["rehearse"] },
+      { name: "Web Speech API", used: ["rehearse"] },
+      { name: "Voice interfaces", used: ["rehearse"] },
+      { name: "Audio recording (WAV)", used: ["rehearse"] },
+    ],
+  },
+  {
+    id: "agents",
+    label: "Agentic AI",
+    skills: [
+      { name: "AI agents", used: ["task-agent", "astra"] },
       { name: "LangGraph", used: ["task-agent"] },
       { name: "LangChain", used: ["task-agent"] },
-      { name: "Tool calling", used: ["task-agent"] },
-      { name: "Intent classification", used: ["task-agent"] },
-      { name: "RAG", used: [] },
-      { name: "Embeddings", used: [] },
-      { name: "Vector databases", used: [] },
+      { name: "Tool calling", used: ["task-agent", "astra"] },
+      { name: "Multi-agent systems", used: [] },
       { name: "MCP", used: [] },
-      { name: "Prompt engineering", used: ["task-agent", "roadguard"] },
+      { name: "Human-in-the-loop actions", used: ["arc", "astra"] },
+      { name: "Conversational AI", used: ["rehearse", "arc", "astra"] },
+      { name: "Conversation state machines", used: ["rehearse"] },
+      { name: "Prompt-injection guarding", used: ["rehearse"] },
+      { name: "Intent classification", used: ["task-agent"] },
+      { name: "Prompt engineering", used: ["task-agent", "roadguard", "arc", "astra", "rehearse"] },
+    ],
+  },
+  {
+    id: "rag",
+    label: "RAG & Retrieval",
+    skills: [
+      { name: "RAG", used: ["arc", "astra"] },
+      { name: "Hybrid search (BM25 + dense)", used: ["arc", "astra"] },
+      { name: "Embeddings", used: ["arc", "astra"] },
+      { name: "Re-ranking", used: [] },
+      { name: "Vector databases", used: [] },
+      { name: "Conversation memory", used: ["arc"] },
+    ],
+  },
+  {
+    id: "llm",
+    label: "LLMs & Fine-tuning",
+    skills: [
+      { name: "LLM applications", used: ["task-agent", "arc", "astra", "rehearse"] },
+      { name: "LoRA / QLoRA", used: ["arc"] },
+      { name: "PEFT", used: ["arc"] },
+      { name: "Post-training (SFT)", used: ["arc"] },
+      { name: "Training-data generation", used: ["arc"] },
+      { name: "Open-weight models", used: ["arc", "roadguard"] },
+      { name: "Structured outputs (JSON Schema)", used: ["rehearse"] },
+      { name: "Reasoning models (gpt-oss)", used: ["rehearse"] },
+      { name: "Hosted LLM APIs (Groq)", used: ["rehearse"] },
+    ],
+  },
+  {
+    id: "eval",
+    label: "Evaluation & Observability",
+    skills: [
+      { name: "LLM evaluation", used: ["arc"] },
+      { name: "Agent evaluation", used: [] },
+      { name: "Held-out benchmarks", used: ["roadguard", "arc"] },
+      { name: "LLM-as-a-judge rubric scoring", used: ["rehearse"] },
+      { name: "Shadow testing", used: ["roadguard"] },
+      { name: "AI observability", used: ["roadguard", "astra"] },
+      { name: "Tracing & structured logs", used: ["roadguard"] },
+    ],
+  },
+  {
+    id: "inference",
+    label: "Inference & Optimization",
+    skills: [
+      { name: "Model inference", used: ["tmcs", "roadguard", "warehouse", "arc", "astra"] },
+      { name: "TensorRT (INT8)", used: ["roadguard"] },
+      { name: "FP16 / bf16", used: ["roadguard"] },
+      { name: "Quantization (4/8-bit, GGUF)", used: ["roadguard", "arc", "astra"] },
+      { name: "llama.cpp", used: ["arc", "astra"] },
+      { name: "CUDA", used: ["roadguard"] },
+      { name: "Latency optimization", used: ["tmcs", "roadguard", "astra"] },
     ],
   },
   {
     id: "ml",
     label: "ML & Deep Learning",
     skills: [
-      { name: "PyTorch", used: ["roadguard"] },
-      { name: "Model inference", used: ["tmcs", "roadguard", "warehouse"] },
+      { name: "PyTorch", used: ["roadguard", "arc"] },
+      { name: "Hugging Face Transformers", used: ["roadguard", "arc"] },
       { name: "NumPy", used: ["roadguard"] },
     ],
   },
   {
     id: "video",
-    label: "Video & Performance",
+    label: "Video & Streaming",
     skills: [
       { name: "RTSP", used: ["tmcs", "roadguard", "warehouse"] },
-      { name: "FFmpeg", used: ["tmcs", "roadguard"] },
+      { name: "FFmpeg", used: ["tmcs"] },
       { name: "MediaMTX", used: ["tmcs"] },
-      { name: "CUDA", used: ["roadguard"] },
-      { name: "FP16 inference", used: ["roadguard"] },
       { name: "Multithreading", used: ["roadguard"] },
     ],
   },
@@ -258,22 +410,27 @@ export const skillGroups: SkillGroup[] = [
     id: "backend",
     label: "Backend & Data",
     skills: [
-      { name: "FastAPI", used: ["tmcs", "warehouse"] },
-      { name: "REST APIs", used: ["tmcs", "warehouse", "task-agent"] },
-      { name: "PostgreSQL", used: ["tmcs", "warehouse"] },
+      { name: "FastAPI", used: ["tmcs", "warehouse", "arc", "astra", "rehearse"] },
+      { name: "REST APIs", used: ["tmcs", "warehouse", "task-agent", "arc", "rehearse"] },
+      { name: "PostgreSQL", used: ["tmcs", "warehouse", "astra"] },
       { name: "MySQL", used: [] },
-      { name: "Firebase", used: ["task-agent"] },
-      { name: "Node.js", used: ["task-agent"] },
-      { name: "React", used: ["warehouse", "task-agent"] },
+      { name: "Firebase", used: ["task-agent", "arc"] },
+      { name: "Node.js", used: ["task-agent", "astra"] },
+      { name: "React", used: ["warehouse", "task-agent", "astra", "rehearse"] },
+      { name: "Next.js", used: ["arc"] },
+      { name: "Vite", used: ["rehearse"] },
+      { name: "Framer Motion", used: ["rehearse"] },
+      { name: "Rate limiting", used: ["rehearse"] },
     ],
   },
   {
     id: "lang",
     label: "Languages",
     skills: [
-      { name: "Python", used: ["tmcs", "roadguard", "warehouse", "task-agent"] },
+      { name: "Python", used: ["tmcs", "roadguard", "warehouse", "task-agent", "arc", "astra", "rehearse"] },
       { name: "SQL", used: ["tmcs", "warehouse"] },
-      { name: "JavaScript", used: ["task-agent"] },
+      { name: "JavaScript", used: ["task-agent", "rehearse"] },
+      { name: "TypeScript", used: ["arc", "astra"] },
       { name: "Java", used: [] },
     ],
   },
@@ -283,9 +440,10 @@ export const skillGroups: SkillGroup[] = [
     skills: [
       { name: "Docker Compose", used: ["warehouse"] },
       { name: "Nginx", used: ["warehouse"] },
-      { name: "Git & GitHub", used: ["roadguard", "warehouse", "task-agent"] },
+      { name: "Vercel", used: ["rehearse"] },
+      { name: "Git & GitHub", used: ["roadguard", "warehouse", "task-agent", "arc", "rehearse"] },
       { name: "Linux", used: [] },
-      { name: "Unit testing", used: ["roadguard"] },
+      { name: "Unit testing", used: ["roadguard", "arc", "astra"] },
     ],
   },
 ];
@@ -307,8 +465,8 @@ export const journey: JourneyStep[] = [
   {
     phase: "Projects",
     title: "From models to working systems",
-    body: "Built an LLM task agent, a warehouse surveillance platform and a real-time accident detection pipeline.",
-    points: ["AI Task Manager", "Warehouse Monitoring System", "RoadGuard"],
+    body: "Built an LLM task agent, a warehouse surveillance platform, a two-tier accident detection pipeline verified by a vision-language model, Arc, a RAG assistant with its own QLoRA fine-tune, and Rehearse, a voice-first AI mock interviewer. At Infrax.ai, built ASTRA, the AI operations agent inside the Cygnus video management system.",
+    points: ["AI Task Manager", "Warehouse Monitoring System", "RoadGuard", "Arc", "Rehearse", "ASTRA"],
   },
   {
     phase: "Certifications",
@@ -325,7 +483,7 @@ export const journey: JourneyStep[] = [
   {
     phase: "Direction",
     when: "Now",
-    title: "Real-time vision and agentic AI",
+    title: "Real-time vision, VLMs and agentic AI",
     body: "Looking for AI/ML engineering roles where models have to work on live, messy, real-world data.",
   },
 ];

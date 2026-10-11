@@ -25,7 +25,7 @@ type Car = { id: number; cls: string; conf: number; x: number; y: number; w: num
 
 /**
  * Illustrative simulation of the RoadGuard pipeline. Overlays build up with each stage:
- * raw frames → detections → tracks → LSTM score → VLM verdict → alert.
+ * raw frames → detections → tracks → rules (Tier 1) → VLM verdict (Tier 2) → incident.
  */
 export function PipelineScene({ stage }: { stage: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -102,23 +102,23 @@ export function PipelineScene({ stage }: { stage: number }) {
     ctx.font = `500 10.5px ${MONO}`; ctx.fillStyle = C.soft;
     ctx.fillText("rtsp://cam-07 · 25 fps", 10, 16);
     ctx.textAlign = "right";
-    ctx.fillText(`frame ${String(1000 + Math.floor(now / 40) % 9000).padStart(5, "0")} · buffer 1 · stale dropped`, w - 10, 16);
+    ctx.fillText(`frame ${String(1000 + Math.floor(now / 40) % 9000).padStart(5, "0")} · 5 s buffer`, w - 10, 16);
     ctx.textAlign = "left";
 
-    // stage 3+: LSTM score over the last 30 steps
+    // stage 3+: Tier-1 kinematic rules on the two tracks
     if (s >= 3) {
       const gw = Math.min(210, w * 0.36), gh = 58, gx = 12, gy = 36;
       ctx.fillStyle = "rgba(8,11,15,.86)"; ctx.fillRect(gx, gy, gw, gh);
-      ctx.strokeStyle = "rgba(148,163,184,.18)"; ctx.strokeRect(gx + 0.5, gy + 0.5, gw - 1, gh - 1);
-      ctx.fillStyle = C.dim; ctx.font = `500 9.5px ${MONO}`; ctx.fillText("LSTM · 30 steps", gx + 8, gy + 13);
-      ctx.beginPath();
-      for (let k = 0; k < 30; k++) {
-        const tk = t - (29 - k) * 120;
-        const v = tk < IMPACT - 1600 ? 0.08 + 0.04 * Math.sin(k) : Math.min(0.94, 0.1 + (tk - (IMPACT - 1600)) / 2000);
-        const x = gx + 8 + (k / 29) * (gw - 16), y = gy + gh - 8 - v * (gh - 26);
-        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = C.reason; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.strokeStyle = hit ? C.reason : "rgba(148,163,184,.18)"; ctx.strokeRect(gx + 0.5, gy + 0.5, gw - 1, gh - 1);
+      ctx.fillStyle = C.dim; ctx.font = `500 9.5px ${MONO}`; ctx.fillText("Rules · Tier 1", gx + 8, gy + 13);
+      const near = Math.max(0, (t - (IMPACT - 1400)) / 1400);
+      const iou = hit ? 0.34 : Math.min(0.29, near * 0.29);
+      const speed = hit ? 13 : 48;
+      ctx.font = `500 10px ${MONO}`; ctx.fillStyle = C.soft;
+      ctx.fillText(`IoU #14·#31  ${iou.toFixed(2)}`, gx + 8, gy + 29);
+      ctx.fillText(`#14 speed  ${speed} km/h`, gx + 8, gy + 42);
+      ctx.fillStyle = hit ? C.fg : C.dim; ctx.font = `600 10px ${MONO}`;
+      ctx.fillText(hit ? "→ collision 0.86" : "→ no event", gx + 8, gy + 54);
     }
 
     // stage 4+: VLM verdict
@@ -126,8 +126,8 @@ export function PipelineScene({ stage }: { stage: number }) {
       const bw = Math.min(250, w * 0.42), bx = w - bw - 12, by = 36;
       ctx.fillStyle = "rgba(8,11,15,.88)"; ctx.fillRect(bx, by, bw, 50);
       ctx.strokeStyle = hit ? C.reason : "rgba(148,163,184,.18)"; ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, 49);
-      ctx.font = `500 10px ${MONO}`; ctx.fillStyle = C.dim; ctx.fillText("VLM verify", bx + 10, by + 16);
-      ctx.fillStyle = C.soft; ctx.fillText("accident in these frames?", bx + 10, by + 31);
+      ctx.font = `500 10px ${MONO}`; ctx.fillStyle = C.dim; ctx.fillText("VLM · Tier 2", bx + 10, by + 16);
+      ctx.fillStyle = C.soft; ctx.fillText("Is a traffic accident visible?", bx + 10, by + 31);
       ctx.fillStyle = hit ? C.fg : C.dim; ctx.font = `600 10.5px ${MONO}`;
       ctx.fillText(hit ? (t > IMPACT + 500 ? "→ yes" : "→ …") : "→ waiting for candidate", bx + 10, by + 44);
     }
@@ -140,7 +140,7 @@ export function PipelineScene({ stage }: { stage: number }) {
       ctx.fillStyle = C.alert; ctx.fillRect(bx, by, bw, 36);
       ctx.fillStyle = "#1a0503"; ctx.font = `700 11px ${MONO}`;
       ctx.fillText("ACCIDENT · #14 + #31", bx + 10, by + 15);
-      ctx.font = `500 10px ${MONO}`; ctx.fillText("snapshot + H.264 clip (≤ 30 s)", bx + 10, by + 28);
+      ctx.font = `500 10px ${MONO}`; ctx.fillText("Tier 1 alert · VLM confirmed", bx + 10, by + 28);
     }
 
     ctx.fillStyle = C.dim; ctx.font = `500 9.5px ${MONO}`;

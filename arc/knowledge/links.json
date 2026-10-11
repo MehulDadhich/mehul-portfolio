@@ -1,0 +1,21 @@
+{
+ "resume": "/Mehul-Dadhich-Resume.pdf",
+ "github": "https://github.com/MehulDadhich",
+ "linkedin": "https://linkedin.com/in/mehul-dadhich-959b7024b",
+ "email": "mailto:mehuldadhich1103@gmail.com",
+ "phone": "tel:+919217447371",
+ "projects": {
+  "warehouse": {
+   "title": "Warehouse Monitoring System",
+   "github": "https://github.com/MehulDadhich/Warehouse-Monitoring-System"
+  },
+  "task-agent": {
+   "title": "AI Task Manager",
+   "github": "https://github.com/MehulDadhich/ai-task-manager"
+  },
+  "rehearse": {
+   "title": "Rehearse",
+   "github": "https://github.com/MehulDadhich/ai-mock-interviewer"
+  }
+ }
+}

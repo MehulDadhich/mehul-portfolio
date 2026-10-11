@@ -17,17 +17,17 @@ export function Footer() {
   const clip = useMotionTemplate`inset(-10% ${remaining}% -10% 0)`;
 
   return (
-    <footer ref={ref} className="relative overflow-hidden border-t border-line">
-      <div className="mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-10">
+    <footer ref={ref} className="relative overflow-hidden">
+      <div className="mx-auto max-w-[1400px] px-4 pt-20 sm:px-6 lg:pt-28 lg:px-10">
         <motion.div style={{ y }} className="relative w-fit max-w-full select-none" aria-hidden>
           <span
-            className="block w-max whitespace-nowrap font-display text-[clamp(2rem,4.8vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-transparent [font-stretch:125%] [-webkit-text-stroke:1px_var(--line-strong)]"
+            className="block w-max whitespace-nowrap font-display text-[clamp(2rem,10.5vw,10rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-transparent [font-stretch:125%] [-webkit-text-stroke:1px_var(--line-strong)]"
           >
             {profile.name}
           </span>
           <motion.span
             style={{ clipPath: clip }}
-            className="absolute inset-y-0 left-0 block w-max whitespace-nowrap bg-gradient-to-r from-signal via-model to-reason bg-clip-text font-display text-[clamp(2rem,4.8vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-transparent [font-stretch:125%]"
+            className="absolute inset-y-0 left-0 block w-max whitespace-nowrap bg-gradient-to-r from-signal via-model to-reason bg-clip-text font-display text-[clamp(2rem,10.5vw,10rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-transparent [font-stretch:125%]"
           >
             {profile.name}
           </motion.span>

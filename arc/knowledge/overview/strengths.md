@@ -1,0 +1,4 @@
+<!-- arc: {"id":"strengths","title":"Why Mehul","keys":["why hire","why should","strengths","strong","best at","good at","stand out","unique","value","impressive","fit"],"links":[{"label":"RoadGuard results","section":"featured"},{"label":"Experience","section":"experience"}]} -->
+# Why Mehul
+
+In short: he has shipped computer vision to **live production CCTV** at Infrax.ai, built a two-tier accident detector verified by a **vision-language model** and evaluated it on held-out benchmark clips and site footage (25.2 ms per frame, 0.47 s per VLM verdict), and builds **LLM agents and RAG systems**: ASTRA, the operations agent in Infrax.ai's video management system, and Arc, with its QLoRA fine-tune. He works across the stack, from fine-tuning, evaluation and inference optimization to FastAPI services, databases and dashboards.

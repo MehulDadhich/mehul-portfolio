@@ -20,7 +20,7 @@ export function Contact() {
     <section id="contact" aria-labelledby="contact-title" className="relative isolate overflow-hidden border-t border-line">
       {/* keep the headline readable over the site's LiDAR backdrop */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_85%_at_0%_70%,rgb(10_11_16/0.7)_28%,transparent_72%)]" aria-hidden />
-      <div className="pointer-events-none mx-auto flex max-w-[1400px] flex-col items-start gap-7 px-4 py-20 sm:px-6 lg:px-10 lg:py-14">
+      <div className="pointer-events-none mx-auto flex max-w-[1400px] flex-col items-start gap-7 px-4 py-20 sm:px-6 lg:px-10 lg:pt-24 lg:pb-14">
         <p className="eyebrow flex items-center gap-3"><span className="text-signal">08</span><span className="h-px w-8 bg-line-strong" />Contact</p>
         <SplitHeading id="contact-title" detect="opportunity 0.99" className="display max-w-[16ch] text-[clamp(2.25rem,4.6vw,4.25rem)] font-bold">
           Let&apos;s build something intelligent.

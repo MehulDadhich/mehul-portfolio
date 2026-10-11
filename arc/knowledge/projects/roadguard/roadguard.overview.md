@@ -1,0 +1,4 @@
+<!-- arc: {"id":"roadguard.overview","title":"RoadGuard","keys":["roadguard","road guard","accident detection","accident","crash","collision","featured project","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See RoadGuard","section":"featured"}],"entity":"roadguard","facet":"overview"} -->
+# RoadGuard
+
+**RoadGuard** (Two-tier accident detection with a VLM). Highway CCTV produces hours of footage that nobody watches live. Accidents need to be caught in seconds without drowning operators in false alarms from normal traffic. A two-tier pipeline that runs fully offline. Tier 1 runs on every frame: detection, tracking and a kinematic rules engine raise an immediate alert. Tier 2 sends uncertain events to a local vision-language model, which confirms or rejects them with a yes or no.

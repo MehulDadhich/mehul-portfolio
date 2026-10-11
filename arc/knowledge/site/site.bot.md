@@ -1,0 +1,4 @@
+<!-- arc: {"id":"site.bot","title":"How Arc works","keys":["arc","bot","assistant","chatbot","rag","retrieval augmented generation","bm25","embeddings","vector","llm","model","llama","how do you work","no api"],"links":[]} -->
+# How Arc works
+
+I'm **Arc**, Mehul's AI portfolio assistant, and I don't use any third-party AI such as ChatGPT, Claude or Gemini. I'm a **generative RAG (retrieval-augmented generation)** system: your question is matched against a knowledge base generated from this site's content using **hybrid retrieval** (BM25 keyword search plus **bge-small** vector embeddings), then an open-weight language model, **Llama 3.2 3B Instruct** running on Mehul's own server, writes the answer from only the retrieved facts and our conversation so far. Mehul also fine-tuned an earlier version of my model with QLoRA; a later fine-tune scored below its base model, so I now run the stock model with stronger retrieval.

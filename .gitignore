@@ -43,3 +43,13 @@ next-env.d.ts
 # python
 __pycache__/
 *.pyc
+
+
+# Arc (local model, binaries, environment, memory, secrets)
+arc/.venv/
+arc/bin/
+arc/models/
+arc/data/
+arc/.env
+arc/*.log
+.pytest_cache/

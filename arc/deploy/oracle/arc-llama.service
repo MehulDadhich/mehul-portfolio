@@ -1,0 +1,13 @@
+[Unit]
+Description=Arc model server (llama.cpp, Llama 3.2 3B)
+After=network.target
+
+[Service]
+User=arc
+# one slot: answers are generated one at a time; 4096 tokens covers Arc's 3000-token prompt plus the answer
+ExecStart=/opt/arc/llama/llama-server -m @MODEL@ --host 127.0.0.1 --port 8081 -c 4096 -np 1 --jinja
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

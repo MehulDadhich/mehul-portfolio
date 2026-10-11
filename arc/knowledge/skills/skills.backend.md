@@ -1,0 +1,4 @@
+<!-- arc: {"id":"skills.backend","title":"Skills: Backend & Data","keys":["skills","skill","technologies","tech stack","know","proficient","expertise","Backend & Data","FastAPI","REST APIs","PostgreSQL","MySQL","Firebase","Node.js","React","Next.js","Vite","Framer Motion","Rate limiting"],"links":[{"label":"See skills","section":"skills"}]} -->
+# Skills: Backend & Data
+
+**Backend & Data:** FastAPI (used in Infrax.ai TMCS, Warehouse Monitoring, Arc, ASTRA and Rehearse), REST APIs (used in Infrax.ai TMCS, Warehouse Monitoring, AI Task Manager, Arc and Rehearse), PostgreSQL (used in Infrax.ai TMCS, Warehouse Monitoring and ASTRA), MySQL (no specific project named on the site), Firebase (used in AI Task Manager and Arc), Node.js (used in AI Task Manager and ASTRA), React (used in Warehouse Monitoring, AI Task Manager, ASTRA and Rehearse), Next.js (used in Arc), Vite (used in Rehearse), Framer Motion (used in Rehearse) and Rate limiting (used in Rehearse).

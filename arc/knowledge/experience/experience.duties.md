@@ -1,0 +1,4 @@
+<!-- arc: {"id":"experience.duties","title":"What he did at Infrax.ai","keys":["responsibilities","what did he do","role","duties","infrax","internship","contributions","tasks","deployed","production"],"links":[{"label":"See experience","section":"experience"}]} -->
+# What he did at Infrax.ai
+
+At **Infrax.ai** he: **Detect**: Developed the Traffic Management and Control System (TMCS) using YOLOv8 and YOLO11 to identify road users and flag incidents in live CCTV feeds. **Ingest**: Built continuous video-ingestion and inference workflows for RTSP CCTV and IP-camera streams with Python, OpenCV, MediaMTX and FFmpeg. **Integrate**: Converted detections into incident events and connected the pipeline to FastAPI REST endpoints, PostgreSQL, monitoring dashboards and real-time alerts. **Optimise**: Optimised and deployed the pipeline for continuous CCTV processing, addressing frame latency, stream failures, resource use and inference performance.

@@ -48,8 +48,6 @@ export function Nav() {
               className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 font-mono text-[12px] text-soft transition-colors hover:border-line-strong hover:text-fg sm:flex"
               aria-label="Ask Arc, Mehul's portfolio assistant (Ctrl + K)"
             >
-              <span className="text-fg">Ask Arc</span>
-              <span className="text-dim">·</span>
               <kbd className="font-mono">Ctrl K</kbd>
             </button>
             <a

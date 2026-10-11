@@ -1,0 +1,4 @@
+<!-- arc: {"id":"tmcs.overview","title":"Traffic Management & Control System","keys":["tmcs","traffic management","atms","infrax project","traffic system","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See Traffic Management & Control System","section":"work"}],"entity":"tmcs","facet":"overview"} -->
+# Traffic Management & Control System
+
+**Traffic Management & Control System** (Industry · Infrax.ai). Traffic operators need to know about stopped vehicles, accidents, fire, smoke and fallen objects on the road the moment they happen, across many live cameras. The computer-vision module of an Advanced Traffic Management System: continuous RTSP ingestion, YOLO detection, and incident events delivered to operators through APIs, dashboards and alerts.

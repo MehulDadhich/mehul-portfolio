@@ -4,7 +4,7 @@ export const alt = "Mehul Dadhich, AI/ML Engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const STAGES = ["Video", "YOLO", "Tracking", "LSTM", "VLM", "Alert"];
+const STAGES = ["Video", "YOLO", "Tracking", "Rules", "VLM", "Alert"];
 
 export default function OpengraphImage() {
   return new ImageResponse(

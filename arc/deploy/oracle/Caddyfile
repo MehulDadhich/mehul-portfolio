@@ -1,0 +1,7 @@
+# HTTPS for the Arc API: Caddy gets a Let's Encrypt certificate for the domain automatically.
+@DOMAIN@ {
+	reverse_proxy 127.0.0.1:8000 {
+		# pass each token on as soon as it's generated
+		flush_interval -1
+	}
+}

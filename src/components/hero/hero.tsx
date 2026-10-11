@@ -22,7 +22,7 @@ type Frame = { label: string; tech: string; usedIn: string; Visual: ComponentTyp
 
 const FRAMES: Frame[] = [
   { label: "Computer Vision", tech: "YOLOv8 · YOLO11 · OpenCV", usedIn: "RoadGuard · TMCS · Warehouse", Visual: VisionVisual, float: "a", color: "233,196,106" },
-  { label: "Generative AI", tech: "VLM verification · Gemini", usedIn: "RoadGuard · AI Task Manager", Visual: GenAIVisual, float: "b", color: "201,184,255" },
+  { label: "Generative AI", tech: "Qwen3-VL · RAG · QLoRA", usedIn: "RoadGuard · Arc", Visual: GenAIVisual, float: "b", color: "201,184,255" },
   { label: "NLP", tech: "Intent · date extraction", usedIn: "AI Task Manager", Visual: NLPVisual, float: "a", color: "241,214,146" },
   { label: "Backend Systems", tech: "FastAPI · PostgreSQL · WebSockets", usedIn: "TMCS · Warehouse", Visual: BackendVisual, float: "b", color: "143,209,158" },
   { label: "AI Agents", tech: "LangGraph · tool calling", usedIn: "AI Task Manager", Visual: AgentVisual, float: "a", color: "201,184,255" },

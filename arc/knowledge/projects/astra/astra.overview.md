@@ -1,0 +1,4 @@
+<!-- arc: {"id":"astra.overview","title":"ASTRA","keys":["astra","cygnus","operations assistant","operations agent","vms assistant","noah","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See ASTRA","section":"work"}],"entity":"astra","facet":"overview"} -->
+# ASTRA
+
+**ASTRA** (Industry · Infrax.ai · AI operations agent). Operators of Cygnus, Infrax.ai's video management system, work across dozens of pages and a constant stream of cameras, events and incidents. A simple question like “what needs my attention?” or “is PTS2134 online?” takes many clicks. An AI assistant built into Cygnus. Operators ask in plain language, and an agent answers from live data through tools that run with the operator's own permissions and site scope, explains features from the product docs, and proposes changes behind a confirmation card. It runs on a self-hosted Qwen3-4B on CPU.

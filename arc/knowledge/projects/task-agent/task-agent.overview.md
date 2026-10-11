@@ -1,0 +1,4 @@
+<!-- arc: {"id":"task-agent.overview","title":"AI Task Manager","keys":["task manager","ai task manager","task agent","todo","to-do","task app","productivity","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See AI Task Manager","section":"work"},{"label":"Code on GitHub","href":"https://github.com/MehulDadhich/ai-task-manager"}],"entity":"task-agent","facet":"overview"} -->
+# AI Task Manager
+
+**AI Task Manager** (LLM agent for task planning). Task apps make people fill in priority, category and due date by hand, so quick notes like “submit the report by Friday, it's urgent” never become organised tasks. An agentic workflow that turns a plain-language instruction into a structured task with priority, category and due date, and sends real-time alarms before it is due.

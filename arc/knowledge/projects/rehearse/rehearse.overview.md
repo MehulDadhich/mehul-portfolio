@@ -1,0 +1,4 @@
+<!-- arc: {"id":"rehearse.overview","title":"Rehearse","keys":["rehearse","mock interview","mock interviewer","ai interviewer","interview practice","practice interview","interview app","whisper","what is","tell me about","explain","overview","problem","solution","project"],"links":[{"label":"See Rehearse","section":"work"},{"label":"Code on GitHub","href":"https://github.com/MehulDadhich/ai-mock-interviewer"}],"entity":"rehearse","facet":"overview"} -->
+# Rehearse
+
+**Rehearse** (AI mock interviewer with voice and a scored debrief). Interview practice usually means reading questions off a list. Nobody asks a follow-up when an answer is vague, and nobody says afterwards what was actually weak about it. A voice-first mock interviewer. It speaks each question, listens to the spoken answer, probes vague answers with follow-ups like a real first round, and ends with a written debrief scored against a rubric, with a stronger version of every answer.

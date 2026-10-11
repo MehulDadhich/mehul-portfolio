@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const stages = [
   { key: "Data", color: "text-signal", samples: ["rtsp://cam-07 · 25 fps", "webcam · 1280×720", "clip.mp4 · H.264"] },
   { key: "Vision", color: "text-model", samples: ["car 0.91 · #14", "truck 0.88 · #31", "person 0.93 · #7"] },
-  { key: "Reasoning", color: "text-reason", samples: ["LSTM 30-step → verify", "VLM: accident? yes", "speed drop on #14"] },
+  { key: "Reasoning", color: "text-reason", samples: ["IoU spike + speed drop", "VLM: accident? yes", "RAG: 5 facts retrieved"] },
   { key: "Decision", color: "text-alert", samples: ["alert · clip saved", "incident → operator", "snapshot · 30 s clip"] },
 ];
 

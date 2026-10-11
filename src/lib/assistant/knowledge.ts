@@ -25,9 +25,12 @@ export type Doc = {
 /** Names people use for each project, mapped to the project id. */
 export const PROJECT_ALIASES: Record<string, string[]> = {
   roadguard: ["roadguard", "road guard", "accident detection", "accident", "crash", "collision", "featured project"],
-  warehouse: ["warehouse", "warehouse monitoring", "vaultsense", "anpr", "number plate", "licence plate", "license plate"],
+  warehouse: ["warehouse", "warehouse monitoring", "vaultsense", "anpr", "number plate", "licence plate", "license plate", "ocr", "easyocr", "plate recognition"],
   "task-agent": ["task manager", "ai task manager", "task agent", "todo", "to-do", "task app", "productivity"],
   tmcs: ["tmcs", "traffic management", "atms", "infrax project", "traffic system"],
+  astra: ["astra", "cygnus", "operations assistant", "operations agent", "vms assistant", "noah"],
+  rehearse: ["rehearse", "mock interview", "mock interviewer", "ai interviewer", "interview practice", "practice interview", "interview app", "whisper"],
+  arc: ["arc project", "rag assistant", "portfolio assistant", "this assistant", "this chatbot", "fine-tune", "fine-tuning", "finetune", "qlora", "lora", "qwen2.5"],
 };
 
 const evidenceLabel = (id: string) => evidence.find((e) => e.id === id)?.label ?? id;
@@ -66,7 +69,7 @@ function projectDocs(): Doc[] {
       answer:
         `**${p.title}** works as a pipeline: ${p.architecture.map((s) => `**${s.label}**`).join(" → ")}. ` +
         p.architecture.map((s) => `${s.label}: ${s.detail}`).join(" "),
-      keys: [...aliases, "architecture", "pipeline", "how does it work", "how it works", "design", "flow", "stages", "steps"],
+      keys: [...aliases, "architecture", "pipeline", "workflow", "work flow", "process", "how does it work", "how it works", "end to end", "components", "design", "flow", "stages", "steps"],
       links: [{ label: `See ${p.title}`, section }],
     });
     docs.push({
@@ -155,10 +158,8 @@ function skillDocs(): Doc[] {
     id: `skills.${g.id}`,
     title: `Skills: ${g.label}`,
     answer:
-      `**${g.label}:** ${list(g.skills.map((s) => s.name))}.` +
-      (g.skills.some((s) => s.used.length)
-        ? " Used in " + list([...new Set(g.skills.flatMap((s) => s.used))].map(evidenceLabel)) + "."
-        : ""),
+      // each skill names its own projects, so "where did he use Firebase?" has an answer
+      `**${g.label}:** ${list(g.skills.map((s) => `${s.name} (${s.used.length ? `used in ${list(s.used.map(evidenceLabel))}` : "no specific project named on the site"})`))}.`,
     keys: ["skills", "skill", "technologies", "tech stack", "know", "proficient", "expertise", g.label, ...g.skills.map((s) => s.name)],
     links: [{ label: "See skills", section: "skills" }],
   }))];
@@ -227,9 +228,11 @@ function profileDocs(): Doc[] {
       id: "projects.all",
       title: "All projects",
       answer:
-        "Mehul's main systems: " +
-        projects.map((p) => `**${p.title}** (${p.kicker.toLowerCase()})`).join(", ") +
-        ". RoadGuard is the featured one, with a full scroll-through of its pipeline.",
+        // one line per project, so "any other projects?" gets substance and a small model keeps the projects apart
+        `Mehul has ${projects.length} separate main systems:\n` +
+        projects.map((p) => `- **${p.title}** (${p.kicker}): ${p.solution}` +
+          (p.github ? " Its code is public on GitHub." : "")).join("\n") +
+        "\nRoadGuard is the featured one, with a full scroll-through of its pipeline.",
       keys: ["projects", "project", "portfolio", "built", "build", "made", "work samples", "what has he built", "systems", "apps"],
       links: [{ label: "See all projects", section: "work" }, { label: "RoadGuard", section: "featured" }],
     },
@@ -237,9 +240,10 @@ function profileDocs(): Doc[] {
       id: "strengths",
       title: "Why Mehul",
       answer:
-        "In short: he has shipped computer vision to **live production CCTV** at Infrax.ai, built a multi-stage accident detector with " +
-        "**measured results** (F1 0.849, 26.9 ms per frame), and builds **LLM agents** with LangGraph. He works across the stack, from " +
-        "model fine-tuning and GPU inference to FastAPI services, databases and dashboards.",
+        "In short: he has shipped computer vision to **live production CCTV** at Infrax.ai, built a two-tier accident detector verified by a " +
+        "**vision-language model** and evaluated it on held-out benchmark clips and site footage (25.2 ms per frame, 0.47 s per VLM verdict), " +
+        "and builds **LLM agents and RAG systems**: ASTRA, the operations agent in Infrax.ai's video management system, and Arc, with its QLoRA fine-tune. He works across the stack, from " +
+        "fine-tuning, evaluation and inference optimization to FastAPI services, databases and dashboards.",
       keys: ["why hire", "why should", "strengths", "strong", "best at", "good at", "stand out", "unique", "value", "impressive", "fit"],
       links: [{ label: "RoadGuard results", section: "featured" }, { label: "Experience", section: "experience" }],
     },
@@ -248,8 +252,9 @@ function profileDocs(): Doc[] {
       title: "LLM and agent work",
       answer:
         "On the LLM side, Mehul built the **AI Task Manager**, a LangGraph agent that turns plain-language instructions into structured tasks using Gemini, " +
-        "with a keyword fallback when the model is down. In RoadGuard he uses a **vision-language model (Qwen3-VL)** to verify accidents, and he lists RAG, " +
-        "embeddings, vector databases, MCP and tool calling among his skills.",
+        "with a keyword fallback when the model is down; at Infrax.ai he built **ASTRA**, a tool-calling operations agent on a self-hosted Qwen3-4B that answers from live data within each operator's permissions; and **Arc**, a RAG assistant with hybrid search on a self-hosted Llama 3.2 3B that acts on the page only after the visitor agrees. " +
+        "He fine-tuned Arc's earlier model with **QLoRA** and evaluated it on held-out questions. In RoadGuard he uses a **vision-language model (Qwen3-VL)** to verify accidents. " +
+        "He also lists multi-agent systems, MCP, re-ranking and vector databases among his skills, though no project on this site uses them yet.",
       keys: ["llm", "llms", "genai", "generative ai", "gen ai", "agent", "agents", "agentic", "langgraph", "langchain", "rag", "chatgpt", "gpt", "nlp", "language model", "prompt"],
       links: [{ label: "AI Task Manager", section: "work" }, { label: "Skills", section: "skills" }],
     },
@@ -258,7 +263,7 @@ function profileDocs(): Doc[] {
       title: "Computer vision work",
       answer:
         "Computer vision is Mehul's core area: **YOLOv8/YOLO11** detection on live RTSP CCTV at Infrax.ai (TMCS), the **RoadGuard** accident detector " +
-        "(detection, tracking, LSTM and VLM verification), and the **Warehouse Monitoring System** with tracking and licence-plate recognition.",
+        "(two YOLOv8s detectors, ByteTrack, a kinematic rules engine and Qwen3-VL verification), and the **Warehouse Monitoring System** with tracking and licence-plate recognition.",
       keys: ["computer vision", "cv", "vision", "yolo", "opencv", "detection", "object detection", "tracking", "image", "video", "cctv", "camera"],
       links: [{ label: "RoadGuard", section: "featured" }, { label: "Projects", section: "work" }],
     },
@@ -280,11 +285,11 @@ function siteDocs(): Doc[] {
       id: "site.bot",
       title: "How Arc works",
       answer:
-        "I'm **Arc**, Mehul's portfolio assistant, and I don't use any third-party AI such as ChatGPT, Claude or Gemini. I'm a **RAG (retrieval-augmented generation)** system: " +
+        "I'm **Arc**, Mehul's AI portfolio assistant, and I don't use any third-party AI such as ChatGPT, Claude or Gemini. I'm a **generative RAG (retrieval-augmented generation)** system: " +
         "your question is matched against a knowledge base generated from this site's content using **hybrid retrieval** (BM25 keyword search plus **bge-small** vector embeddings), " +
-        "and an open-weight language model, **Qwen2.5-1.5B-Instruct** running on llama.cpp, writes the answer from only the retrieved facts. " +
-        "If that model is asleep, a fully in-browser engine (intent router + BM25) answers instead.",
-      keys: ["arc", "bot", "assistant", "chatbot", "rag", "retrieval augmented generation", "bm25", "embeddings", "vector", "llm", "model", "qwen", "how do you work", "no api"],
+        "then an open-weight language model, **Llama 3.2 3B Instruct** running on Mehul's own server, writes the answer from only the retrieved facts and our conversation so far. " +
+        "Mehul also fine-tuned an earlier version of my model with QLoRA; a later fine-tune scored below its base model, so I now run the stock model with stronger retrieval.",
+      keys: ["arc", "bot", "assistant", "chatbot", "rag", "retrieval augmented generation", "bm25", "embeddings", "vector", "llm", "model", "llama", "how do you work", "no api"],
     },
     {
       id: "web",

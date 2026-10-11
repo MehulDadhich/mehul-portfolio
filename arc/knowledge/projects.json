@@ -1,0 +1,70 @@
+{
+ "roadguard": [
+  "roadguard",
+  "road guard",
+  "accident detection",
+  "accident",
+  "crash",
+  "collision",
+  "featured project"
+ ],
+ "warehouse": [
+  "warehouse",
+  "warehouse monitoring",
+  "vaultsense",
+  "anpr",
+  "number plate",
+  "licence plate",
+  "license plate",
+  "ocr",
+  "easyocr",
+  "plate recognition"
+ ],
+ "task-agent": [
+  "task manager",
+  "ai task manager",
+  "task agent",
+  "todo",
+  "to-do",
+  "task app",
+  "productivity"
+ ],
+ "tmcs": [
+  "tmcs",
+  "traffic management",
+  "atms",
+  "infrax project",
+  "traffic system"
+ ],
+ "astra": [
+  "astra",
+  "cygnus",
+  "operations assistant",
+  "operations agent",
+  "vms assistant",
+  "noah"
+ ],
+ "rehearse": [
+  "rehearse",
+  "mock interview",
+  "mock interviewer",
+  "ai interviewer",
+  "interview practice",
+  "practice interview",
+  "interview app",
+  "whisper"
+ ],
+ "arc": [
+  "arc project",
+  "rag assistant",
+  "portfolio assistant",
+  "this assistant",
+  "this chatbot",
+  "fine-tune",
+  "fine-tuning",
+  "finetune",
+  "qlora",
+  "lora",
+  "qwen2.5"
+ ]
+}

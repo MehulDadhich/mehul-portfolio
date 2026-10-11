@@ -1,0 +1,4 @@
+<!-- arc: {"id":"skills.llm","title":"Skills: LLMs & Fine-tuning","keys":["skills","skill","technologies","tech stack","know","proficient","expertise","LLMs & Fine-tuning","LLM applications","LoRA / QLoRA","PEFT","Post-training (SFT)","Training-data generation","Open-weight models","Structured outputs (JSON Schema)","Reasoning models (gpt-oss)","Hosted LLM APIs (Groq)"],"links":[{"label":"See skills","section":"skills"}]} -->
+# Skills: LLMs & Fine-tuning
+
+**LLMs & Fine-tuning:** LLM applications (used in AI Task Manager, Arc, ASTRA and Rehearse), LoRA / QLoRA (used in Arc), PEFT (used in Arc), Post-training (SFT) (used in Arc), Training-data generation (used in Arc), Open-weight models (used in Arc and RoadGuard), Structured outputs (JSON Schema) (used in Rehearse), Reasoning models (gpt-oss) (used in Rehearse) and Hosted LLM APIs (Groq) (used in Rehearse).
