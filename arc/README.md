@@ -55,6 +55,7 @@ right in the click (so the browser allows the new tab or download), No does noth
 | Visitor says | Arc offers to |
 |---|---|
 | "take me to the contact section", "where is the skills section?" | scroll to that section |
+| "show me the website", "show all the animations", "give me a tour" | play a guided tour of the whole site: Arc minimises, every section scrolls by with a caption, and Arc comes back at the end (scrolling or Esc hands control back) |
 | "download his resume", "can I get his CV?" | download the resume PDF |
 | "take me to his GitHub", "open his LinkedIn" | open the profile in a new tab |
 | "show me the warehouse system's code" | open that project's GitHub repo |

@@ -4,43 +4,40 @@ export const alt = "Mehul Dadhich, AI/ML Engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const STAGES = ["Video", "YOLO", "Tracking", "Rules", "VLM", "Alert"];
+/** The hero's key figures, as the share card's results row. */
+const FIGURES = [
+  { before: "", after: "25.2 ms", label: "Tier-1 latency p50" },
+  { before: "", after: "3.6 s", label: "median time to alert" },
+  { before: "51 s", after: "6 s", label: "agent cold start" },
+  { before: "71%", after: "90%", label: "fact recall, QLoRA" },
+];
 
+/** Share card on the site's dark stage: ivory type, one vermilion accent. */
 export default function OpengraphImage() {
   return new ImageResponse(
     (
       <div
         style={{
           width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between",
-          padding: "72px 80px", background: "#0a0b10", color: "#f4efe3", fontFamily: "sans-serif",
-          backgroundImage: "radial-gradient(circle at 85% 10%, rgba(233,196,106,0.18), transparent 45%), radial-gradient(circle at 10% 100%, rgba(201,184,255,0.12), transparent 40%)",
+          padding: "64px 80px", background: "#0c0c0b", color: "#efece4", fontFamily: "serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 24, color: "#aaa496", letterSpacing: 4 }}>
-          <div style={{ width: 12, height: 12, borderRadius: 12, background: "#8fd19e" }} />
-          AI / ML ENGINEER · DELHI, INDIA
+        <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: 22, color: "#a39f94", letterSpacing: 3, borderTop: "2px solid #efece4", paddingTop: 18 }}>
+          <div style={{ display: "flex" }}>MEHUL DADHICH · AI / ML ENGINEER</div>
+          <div style={{ display: "flex" }}>DELHI, INDIA</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ display: "flex", position: "relative", fontSize: 128, fontWeight: 800, letterSpacing: -4, lineHeight: 1 }}>
-            MEHUL DADHICH
-          </div>
-          <div style={{ fontSize: 34, color: "#aaa496", maxWidth: 900 }}>
-            Real-time computer vision and LLM agents, built into systems people rely on.
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", fontSize: 104, lineHeight: 1, letterSpacing: -3 }}>
+          <div style={{ display: "flex" }}>I build AI systems and take them</div>
+          <div style={{ display: "flex", color: "#ff5b2e", fontStyle: "italic" }}>past the notebook.</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {STAGES.map((s, i) => (
-            <div key={s} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div
-                style={{
-                  display: "flex", padding: "10px 18px", borderRadius: 10, fontSize: 24,
-                  border: `2px solid ${i === STAGES.length - 1 ? "#ff6b5e" : "#e9c46a"}`,
-                  color: i === STAGES.length - 1 ? "#ff6b5e" : "#e9c46a",
-                }}
-              >
-                {s}
+        <div style={{ display: "flex", borderTop: "1px solid #46443e", paddingTop: 22 }}>
+          {FIGURES.map((f) => (
+            <div key={f.label} style={{ display: "flex", flexDirection: "column", width: "25%", gap: 6 }}>
+              <div style={{ display: "flex", fontFamily: "monospace", fontSize: 40, letterSpacing: -2 }}>
+                {f.before ? <span style={{ color: "#efece4" }}>{f.before} → </span> : null}
+                <span style={{ color: f.before ? "#ff5b2e" : "#efece4" }}>{f.after}</span>
               </div>
-              {i < STAGES.length - 1 ? <div style={{ width: 28, height: 2, background: "#3a3628" }} /> : null}
+              <div style={{ display: "flex", fontFamily: "sans-serif", fontSize: 20, color: "#a39f94" }}>{f.label}</div>
             </div>
           ))}
         </div>

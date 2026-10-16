@@ -1,78 +1,151 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowUpRight, Check, Copy, Download, MapPin } from "lucide-react";
-import { profile } from "@/lib/content";
-import { Magnetic } from "@/components/shared/magnetic";
-import { SplitHeading } from "@/components/shared/split-heading";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowDown, ArrowUpRight, Check, Copy } from "lucide-react";
+import { gmailCompose, profile } from "@/lib/content";
 import { GithubIcon, LinkedinIcon } from "@/components/shared/brand-icons";
+import { openAssistant } from "@/components/assistant/assistant";
+import { Magnetic, Scramble, SplitReveal } from "@/components/shared/motion-kit";
 
+const ContactScene = dynamic(() => import("./contact-scene"), { ssr: false });
+
+/**
+ * §06: the closing scene. The hero's lens comes back, hovering over an envelope it classifies as
+ * "email 0.99"; the headline arrives letter by letter, the address is magnetic, and the ways to reach
+ * him draw in one after another.
+ */
 export function Contact() {
+  const reduce = useReducedMotion();
   const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard?.writeText(profile.email).then(
-      () => { setCopied(true); setTimeout(() => setCopied(false), 1800); },
-      () => {}
-    );
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = stageRef.current!;
+    const pre = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: "100% 0px" });
+    const on = new IntersectionObserver(([e]) => setActive(e.isIntersecting));
+    pre.observe(el);
+    on.observe(el);
+    return () => { pre.disconnect(); on.disconnect(); };
+  }, []);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {}
   };
 
+  const links = [
+    { label: "GitHub", href: profile.github, icon: <GithubIcon className="size-4" />, ext: true },
+    { label: "LinkedIn", href: profile.linkedin, icon: <LinkedinIcon className="size-4" />, ext: true },
+    { label: "Résumé (PDF)", href: profile.resume, icon: <ArrowDown className="size-4" aria-hidden />, download: true },
+    { label: profile.phone, href: `tel:${profile.phone.replace(/\s/g, "")}`, icon: null },
+  ];
+
   return (
-    <section id="contact" aria-labelledby="contact-title" className="relative isolate overflow-hidden border-t border-line">
-      {/* keep the headline readable over the site's LiDAR backdrop */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_85%_at_0%_70%,rgb(10_11_16/0.7)_28%,transparent_72%)]" aria-hidden />
-      <div className="pointer-events-none mx-auto flex max-w-[1400px] flex-col items-start gap-7 px-4 py-20 sm:px-6 lg:px-10 lg:pt-24 lg:pb-14">
-        <p className="eyebrow flex items-center gap-3"><span className="text-signal">08</span><span className="h-px w-8 bg-line-strong" />Contact</p>
-        <SplitHeading id="contact-title" detect="opportunity 0.99" className="display max-w-[16ch] text-[clamp(2.25rem,4.6vw,4.25rem)] font-bold">
-          Let&apos;s build something intelligent.
-        </SplitHeading>
-        <p className="max-w-[52ch] text-[1.1rem] leading-relaxed text-soft">
-          I&apos;m looking for AI/ML engineering roles working on computer vision, LLM agents or the systems around them.
-          The fastest way to reach me is email.
+    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-16 overflow-hidden">
+      <div className="shell py-14 md:py-20">
+        <p className="label relative pt-4">
+          <motion.span
+            className="absolute inset-x-0 top-0 h-px origin-left bg-fg"
+            initial={reduce ? false : { scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.4, ease: [0.7, 0, 0.2, 1] }}
+            aria-hidden
+          />
+          <span className="text-fg">§06</span> · <Scramble text="Correspondence" />
         </p>
 
-        <div className="pointer-events-auto flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-1 rounded-full border border-line-strong bg-ink/80 p-1.5 pl-5 backdrop-blur">
-            <a href={`mailto:${profile.email}`} className="font-mono text-[clamp(0.85rem,1.6vw,1.05rem)] text-fg underline-offset-4 hover:underline">
-              {profile.email}
-            </a>
-            <button
-              type="button"
-              onClick={copy}
-              className="ml-3 flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-2 text-[13px] font-medium text-ink"
-              aria-label="Copy email address"
+        <div className="mt-8 grid grid-cols-12 items-center gap-x-6 gap-y-6 lg:gap-x-10">
+          <div className="relative z-10 col-span-12 lg:col-span-6">
+            <SplitReveal
+              as="h2"
+              by="chars"
+              id="contact-title"
+              className="serif max-w-[15ch] text-[clamp(2.6rem,1.5rem+4.4vw,6rem)] leading-[0.98] tracking-[-0.03em]"
             >
-              {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
-              {copied ? "Copied" : "Copy"}
-            </button>
+              <span className="sr-only">Contact. </span>
+              Need a model taken <em className="text-signal">past the notebook?</em>
+            </SplitReveal>
+
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <Magnetic strength={0.18}>
+                <a href={gmailCompose()} target="_blank" rel="noreferrer" className="serif ink-link text-[clamp(1.35rem,1rem+1.6vw,2.4rem)] leading-tight break-all sm:break-normal">
+                  {profile.email}
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.4}>
+                <button
+                  type="button"
+                  onClick={copy}
+                  aria-label="Copy email address"
+                  className="flex h-10 items-center gap-1.5 rounded-full border border-line-strong px-3.5 text-[13px] text-soft transition-colors hover:border-fg hover:text-fg"
+                >
+                  {copied ? <Check className="size-3.5 text-ok" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </Magnetic>
+              <span role="status" className="sr-only">{copied ? "Email address copied" : ""}</span>
+            </div>
+          </div>
+
+          {/* the lens, set down */}
+          <div ref={stageRef} className="relative col-span-12 h-[min(80vw,440px)] lg:col-span-6 lg:-mr-10 lg:h-[min(40vw,560px)]">
+            {near ? <ContactScene active={active} /> : null}
+            <p className="label pointer-events-none absolute bottom-2 right-0 text-[10.5px]" aria-hidden>
+              Fig. 2 · the lens, set down
+            </p>
           </div>
         </div>
 
-        <ul className="pointer-events-auto flex flex-wrap gap-3">
-          <li>
-            <Magnetic>
-              <a href={profile.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-full border border-line-strong bg-ink/70 px-4 py-2.5 text-sm text-fg backdrop-blur transition-colors hover:border-fg/50">
-                <LinkedinIcon className="size-4" /> LinkedIn <ArrowUpRight className="size-3.5 text-dim" aria-hidden />
+        <ul className="mt-10 grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-4">
+          {links.map((l, i) => (
+            <motion.li
+              key={l.label}
+              className="relative"
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "0px 0px -6% 0px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 }}
+            >
+              <motion.span
+                className="absolute inset-x-0 top-0 h-px origin-left bg-line-strong"
+                initial={reduce ? false : { scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, ease: [0.7, 0, 0.2, 1], delay: 0.1 + i * 0.08 }}
+                aria-hidden
+              />
+              <a
+                href={l.href}
+                {...(l.ext ? { target: "_blank", rel: "noreferrer" } : {})}
+                {...(l.download ? { download: true } : {})}
+                className="group relative flex h-16 items-center justify-between gap-3 overflow-hidden pr-2 text-[15px]"
+              >
+                {/* a fill that wipes up from below on hover */}
+                <span className="absolute inset-0 origin-bottom scale-y-0 bg-fg transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-y-100" aria-hidden />
+                <span className="relative flex items-center gap-2.5 pl-2 transition-colors duration-300 group-hover:text-ink">
+                  {l.icon}
+                  <span className={l.icon ? "" : "num"}>{l.label}</span>
+                </span>
+                <ArrowUpRight className="relative size-4 text-soft transition-[transform,color] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" aria-hidden />
               </a>
-            </Magnetic>
-          </li>
-          <li>
-            <Magnetic>
-              <a href={profile.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-full border border-line-strong bg-ink/70 px-4 py-2.5 text-sm text-fg backdrop-blur transition-colors hover:border-fg/50">
-                <GithubIcon className="size-4" /> GitHub <ArrowUpRight className="size-3.5 text-dim" aria-hidden />
-              </a>
-            </Magnetic>
-          </li>
-          <li>
-            <Magnetic>
-              <a href={profile.resume} download className="flex items-center gap-2 rounded-full border border-line-strong bg-ink/70 px-4 py-2.5 text-sm text-fg backdrop-blur transition-colors hover:border-fg/50">
-                <Download className="size-4" aria-hidden /> Resume (PDF)
-              </a>
-            </Magnetic>
-          </li>
+            </motion.li>
+          ))}
         </ul>
 
-        <p className="flex items-center gap-2 font-mono text-[12px] text-dim">
-          <MapPin className="size-3.5" aria-hidden /> {profile.location} · {profile.phone}
+        <p className="mt-8 text-[15px] text-soft">
+          Rather ask first?{" "}
+          <button type="button" onClick={openAssistant} className="text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-signal">
+            Arc answers from this site&rsquo;s facts
+          </button>{" "}
+          — <kbd className="font-mono text-[13px]">Ctrl K</kbd>.
         </p>
       </div>
     </section>

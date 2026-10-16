@@ -6,6 +6,8 @@ import { ArrowUpRight, RotateCcw, SendHorizontal, Square, X } from "lucide-react
 import { conversationId, identityHeaders, startNewConversation } from "@/lib/assistant/identity";
 import type { Link } from "@/lib/assistant/knowledge";
 import { scrollToId } from "@/components/providers/smooth-scroll";
+import { OPEN_PROJECT } from "@/components/projects/projects";
+import { SiteTour, TOUR_ENDED, startTour } from "@/components/tour/site-tour";
 import { cn } from "@/lib/utils";
 import { ArcOrb } from "./arc-orb";
 
@@ -16,10 +18,10 @@ export function openAssistant() {
 
 type Status = "thinking" | "streaming" | "done" | "error";
 /**
- * Something Arc can do on the page: scroll to a section, download the resume, or open a link (GitHub, LinkedIn,
- * email…). `confirm` means Arc is asking first; otherwise the visitor agreed and it should happen now.
+ * Something Arc can do on the page: scroll to a section, play the guided tour of the whole site, download the resume,
+ * or open a link (GitHub, LinkedIn, email…). `confirm` means Arc is asking first; otherwise the visitor agreed and it should happen now.
  */
-type ArcAction = { kind: "navigate" | "download" | "open"; key: string; label: string; confirm: boolean; href?: string; section?: string };
+type ArcAction = { kind: "navigate" | "download" | "open" | "tour"; key: string; label: string; confirm: boolean; href?: string; section?: string };
 type BotMsg = {
   id: number;
   role: "bot";
@@ -86,9 +88,16 @@ export function Assistant() {
         setOpen((o) => !o);
       }
     };
+    // back from the guided tour, unless the visitor took over by scrolling (then they're reading)
+    const onTourEnded = (e: Event) => { if ((e as CustomEvent<{ reopen: boolean }>).detail?.reopen) setOpen(true); };
     window.addEventListener(OPEN_EVENT, onOpen);
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener(OPEN_EVENT, onOpen); window.removeEventListener("keydown", onKey); };
+    window.addEventListener(TOUR_ENDED, onTourEnded);
+    return () => {
+      window.removeEventListener(OPEN_EVENT, onOpen);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(TOUR_ENDED, onTourEnded);
+    };
   }, []);
 
   useEffect(() => {
@@ -198,7 +207,11 @@ export function Assistant() {
   };
 
   const follow = (l: Link) => {
-    if (l.section) {
+    if (l.section?.startsWith("project-")) {
+      scrollToId("work");
+      window.dispatchEvent(new CustomEvent(OPEN_PROJECT, { detail: l.section.slice("project-".length) }));
+      if (window.matchMedia("(max-width: 640px)").matches) setOpen(false);
+    } else if (l.section) {
       scrollToId(l.section);
       if (window.matchMedia("(max-width: 640px)").matches) setOpen(false);
     } else if (l.href) {
@@ -210,7 +223,12 @@ export function Assistant() {
     }
   };
 
-  const perform = (a: ArcAction) => follow({ label: a.label, section: a.section, href: a.href });
+  const perform = (a: ArcAction) => {
+    if (a.kind !== "tour") return follow({ label: a.label, section: a.section, href: a.href });
+    // Arc minimises so the whole page is visible, and comes back when the tour ends (see TOUR_ENDED)
+    setOpen(false);
+    startTour();
+  };
 
   /** Yes runs the action inside the click, so the browser allows the new tab or download; then Arc confirms. */
   const choose = (m: BotMsg, yes: boolean) => {
@@ -227,6 +245,7 @@ export function Assistant() {
 
   return (
     <>
+      <SiteTour />
       {/* launcher */}
       <motion.button
         type="button"
@@ -238,7 +257,7 @@ export function Assistant() {
         initial={reduce ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.4, duration: 0.6 }}
-        className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] right-4 z-50 flex items-center gap-2.5 rounded-full border border-line-strong bg-panel/90 py-1.5 pl-1.5 pr-4 text-[13px] font-medium text-fg shadow-[0_18px_40px_-18px_rgb(0_0_0/0.8)] backdrop-blur-md transition-colors hover:border-signal sm:right-6"
+        className="screen fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] right-4 z-50 flex items-center gap-2.5 rounded-full border border-line-strong bg-panel/90 py-1.5 pl-1.5 pr-4 text-[13px] font-medium text-fg shadow-[0_18px_40px_-18px_rgb(0_0_0/0.8)] backdrop-blur-md transition-colors hover:border-signal sm:right-6 md:hidden"
       >
         <span className="relative grid size-8 place-items-center overflow-hidden rounded-full bg-ink">
           {open ? <X className="size-4 text-signal" aria-hidden /> : <ArcOrb size={32} state="idle" />}
@@ -258,7 +277,7 @@ export function Assistant() {
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.97 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             style={{ transformOrigin: "100% 100%" }}
-            className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] right-4 z-50 flex h-[min(600px,calc(100svh-7rem))] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-line-strong bg-panel/95 shadow-[0_40px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl sm:right-6 sm:w-[410px]"
+            className="screen fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] right-4 z-50 flex h-[min(600px,calc(100svh-7rem))] md:bottom-6 md:h-[min(640px,calc(100svh-6rem))] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-line-strong bg-panel/95 shadow-[0_40px_80px_-30px_rgb(0_0_0/0.9)] backdrop-blur-xl sm:right-6 sm:w-[410px]"
           >
             {/* header */}
             <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">

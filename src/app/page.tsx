@@ -1,13 +1,8 @@
 import { Hero } from "@/components/hero/hero";
 import { Featured } from "@/components/featured/featured";
-import { Projects } from "@/components/projects/projects";
-import { Experience } from "@/components/sections/experience";
-import { Skills } from "@/components/sections/skills";
-import { Journey } from "@/components/sections/journey";
-import { Achievements } from "@/components/sections/achievements";
-import { Contact } from "@/components/sections/contact";
-import { Footer } from "@/components/sections/footer";
-import { SectionWheel } from "@/components/wheel/section-wheel";
+import { World } from "@/components/world/world";
+import { ProjectSheetHost } from "@/components/projects/projects";
+import { SkillsSheet } from "@/components/sections/skills-sheet";
 import { profile } from "@/lib/content";
 import { siteUrl } from "@/lib/site";
 
@@ -31,20 +26,13 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
-      <main id="main">
-        <SectionWheel
-          panels={[
-            { id: "top", label: "Intro", content: <Hero /> },
-            { id: "featured", label: "RoadGuard", content: <Featured /> },
-            { id: "work", label: "Work", content: <Projects /> },
-            { id: "experience", label: "Experience", content: <Experience /> },
-            { id: "skills", label: "Skills", content: <Skills /> },
-            { id: "journey", label: "Journey", content: <Journey /> },
-            { id: "achievements", label: "Achievements", content: <Achievements /> },
-            { id: "contact", label: "Contact", content: <><Contact /><Footer /></> },
-          ]}
-        />
+      <main id="main" className="relative z-10">
+        <Hero />
+        <Featured />
+        <World />
       </main>
+      <ProjectSheetHost />
+      <SkillsSheet />
     </>
   );
 }

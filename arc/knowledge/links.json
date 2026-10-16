@@ -5,6 +5,9 @@
  "email": "mailto:mehuldadhich1103@gmail.com",
  "phone": "tel:+919217447371",
  "projects": {
+  "roadguard": {
+   "title": "RoadGuard"
+  },
   "warehouse": {
    "title": "Warehouse Monitoring System",
    "github": "https://github.com/MehulDadhich/Warehouse-Monitoring-System"
@@ -13,9 +16,18 @@
    "title": "AI Task Manager",
    "github": "https://github.com/MehulDadhich/ai-task-manager"
   },
+  "astra": {
+   "title": "ASTRA"
+  },
+  "arc": {
+   "title": "Arc"
+  },
   "rehearse": {
    "title": "Rehearse",
    "github": "https://github.com/MehulDadhich/ai-mock-interviewer"
+  },
+  "tmcs": {
+   "title": "Traffic Management & Control System"
   }
  }
 }

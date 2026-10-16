@@ -84,7 +84,8 @@ def test_no_declines_without_acting():
 
 
 def test_yes_without_an_offer_does_nothing():
-    assert ask("yes", turn("is he good at computer vision?", "Yes, it's his core area.")) == ask("hello")
+    d = ask("yes", turn("is he good at computer vision?", "Yes, it's his core area."))
+    assert d.action is None and "nothing on the page" in d.task  # and the model is told not to pretend otherwise
     assert ask("yes").action is None
 
 
@@ -108,3 +109,134 @@ def test_event_payload():
     event = ask("take me to his github").action.event()
     assert event == {"type": "action", "action": {"kind": "open", "key": "github", "label": "GitHub", "confirm": True,
                                                   "href": "https://github.com/MehulDadhich"}}
+
+
+def service(projects):
+    from app.conversation import ArcService
+    svc = ArcService.__new__(ArcService)
+    svc.projects = projects
+    return svc
+
+
+ALL = {**PROJECTS, "rehearse": ["rehearse", "mock interviewer"]}
+ARCH_LINKS = {**LINKS, "projects": {**LINKS["projects"], "rehearse": {"title": "Rehearse"}, "roadguard": {"title": "RoadGuard"}}}
+
+
+def test_that_project_is_the_one_arc_just_named():
+    # the question before named no project; Arc's answer did
+    history = turn("does mehul know text to speech", "Yes, he used text-to-speech.") + \
+        turn("in which project did he use this", "Mehul used text-to-speech in the Rehearse project.")
+    svc = service(ALL)
+    assert svc.focus("can you take me to that proect architecture", history) == "rehearse"
+    d = decide("can you take me to that proect architecture", history, ARCH_LINKS, ALL, focus=svc.focus)
+    assert d.action.kind == "navigate" and d.action.section == "project-rehearse" and d.action.confirm
+    yes = decide("yes", history + turn("can you take me to that proect architecture", "Shall I open it?"),
+                 ARCH_LINKS, ALL, focus=svc.focus)
+    assert yes.action.section == "project-rehearse" and not yes.action.confirm
+
+
+@pytest.mark.parametrize("q, section", [
+    ("show me the rehearse architecture", "project-rehearse"),
+    ("take me to the mock interviewer project", "project-rehearse"),
+    ("take me to roadguard's pipeline", "project-roadguard"),
+    ("take me to roadguard", "featured"),
+    ("show me the warehouse code", None),
+])
+def test_project_architecture_requests(q, section):
+    d = decide(q, [], ARCH_LINKS, ALL)
+    assert (d.action.section if d.action and d.action.kind == "navigate" else None) == section
+
+
+def test_its_site_without_a_live_site_offers_the_code():
+    links = {**ARCH_LINKS, "projects": {**ARCH_LINKS["projects"],
+                                         "rehearse": {"title": "Rehearse", "github": "https://github.com/x/rehearse"}}}
+    history = turn("can you show me this project", "Would you like me to open the Rehearse project architecture?")
+    svc = service(ALL)
+    d = decide("no not the architecture i want to see its site", history, links, ALL, focus=svc.focus)
+    assert d.action.kind == "open" and d.action.href.endswith("/rehearse") and d.action.confirm
+    assert "no live site" in d.task
+
+
+def test_live_site_opens_when_there_is_one():
+    links = {**ARCH_LINKS, "projects": {"rehearse": {"title": "Rehearse", "demo": "https://rehearse.example"}}}
+    d = decide("is rehearse live?", [], links, ALL)
+    assert d.action.href == "https://rehearse.example"
+
+
+def test_no_site_and_no_code_is_said_plainly():
+    d = decide("show me the roadguard demo", [], ARCH_LINKS, ALL)
+    assert d.action.section == "project-roadguard" and "isn't public" in d.task
+
+
+def test_this_portfolio_is_not_a_project_site():
+    assert ask("take me to the top of this site").action.section == "top"
+
+
+def offered(user: str, answer: str, action) -> list[dict]:
+    return [{"role": "user", "content": user}, {"role": "assistant", "content": answer, "offer": action.event()["action"]}]
+
+
+def test_the_offer_is_what_yes_runs():
+    svc = service(ALL)
+    history = turn("does mehul do tts stt", "Yes, in his Rehearse project.")
+    offer = decide("can you take me to that project", history, ARCH_LINKS, ALL, focus=svc.action_focus).action
+    assert offer.section == "project-rehearse"
+    history += offered("can you take me to that project", "Shall I open the Rehearse architecture?", offer)
+    for reply in ["open it for me", "yes", "tes", "i was writing yes", "sure, show it"]:
+        d = decide(reply, history, ARCH_LINKS, ALL, focus=svc.action_focus)
+        assert d.action.section == "project-rehearse" and not d.action.confirm, reply
+    assert decide("no thanks", history, ARCH_LINKS, ALL).task == DECLINED
+    # a new request of its own still wins over the offer
+    assert decide("take me to the contact section", history, ARCH_LINKS, ALL).action.section == "contact"
+
+
+@pytest.mark.parametrize("q", ["i want you to show me reheasrse archi", "i want to see the architecture of the rehearse project"])
+def test_misspelt_and_soft_architecture_requests(q):
+    assert decide(q, [], ARCH_LINKS, ALL).action.section == "project-rehearse"
+
+
+def test_open_architecture_uses_the_project_being_discussed():
+    svc = service(ALL)
+    history = turn("tell me about rehearse", "It's a mock interviewer.") + turn("ok", "Anything else?")
+    d = decide("open architecture for me", history, ARCH_LINKS, ALL, focus=svc.action_focus)
+    assert d.action.section == "project-rehearse"
+
+
+@pytest.mark.parametrize("q", ["does rehearse show a score?", "what does the architecture of a RAG system look like"])
+def test_questions_about_projects_are_not_requests(q):
+    assert decide(q, [], ARCH_LINKS, ALL).action is None
+
+
+@pytest.mark.parametrize("q", [
+    "show me the website",
+    "show all the animation of this site",
+    "can you show me all the animations",
+    "give me a tour",
+    "take me on a tour of the site",
+    "show me around",
+    "walk me through the whole website",
+    "show me his portfolio",
+    "I want to see the whole site",
+])
+def test_tour_requests_are_offered_first(q):
+    d = ask(q)
+    assert d.action and (d.action.kind, d.action.key) == ("tour", "tour") and d.action.confirm
+    assert "ask whether" in d.task and "guided tour" in d.task
+
+
+@pytest.mark.parametrize("q", [
+    "take me to the top of this site",  # one section, not the tour
+    "show me the warehouse system's code",
+    "what animations does the site use?",
+    "show me roadguard's animation",  # a project's own chapter, not the whole site
+])
+def test_tour_does_not_swallow_other_requests(q):
+    d = ask(q)
+    assert not (d.action and d.action.kind == "tour")
+
+
+def test_yes_to_a_tour_starts_it():
+    first = ask("show me the website")
+    d = ask("yes", offered("show me the website", "Would you like a guided tour?", first.action))
+    assert d.action and d.action.kind == "tour" and not d.action.confirm
+    assert d.action.event()["action"] == {"kind": "tour", "key": "tour", "label": "guided tour", "confirm": False}

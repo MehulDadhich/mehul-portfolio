@@ -158,8 +158,11 @@ function skillDocs(): Doc[] {
     id: `skills.${g.id}`,
     title: `Skills: ${g.label}`,
     answer:
-      // each skill names its own projects, so "where did he use Firebase?" has an answer
-      `**${g.label}:** ${list(g.skills.map((s) => `${s.name} (${s.used.length ? `used in ${list(s.used.map(evidenceLabel))}` : "no specific project named on the site"})`))}.`,
+      // one plain sentence per skill naming its projects, so "where did he use TTS?" has an answer a small model can't miss
+      `Mehul's ${g.label} skills. ` +
+      g.skills.map((s) => s.used.length
+        ? `He used ${s.name} in ${list(s.used.map(evidenceLabel))}.`
+        : `He knows ${s.name}; no project on the site names it.`).join(" "),
     keys: ["skills", "skill", "technologies", "tech stack", "know", "proficient", "expertise", g.label, ...g.skills.map((s) => s.name)],
     links: [{ label: "See skills", section: "skills" }],
   }))];

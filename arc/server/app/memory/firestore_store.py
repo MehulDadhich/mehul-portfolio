@@ -35,7 +35,9 @@ class FirestoreMemoryStore(MemoryStore):
         def read():
             q = (self._conv(uid, conversation_id).collection("messages")
                  .order_by("createdAt", direction=self.fs.Query.DESCENDING).limit(limit))
-            return [{"role": d.get("role"), "content": d.get("content")} for d in q.stream()][::-1]
+            docs = [d.to_dict() for d in q.stream()]  # to_dict: a snapshot's .get() raises on a missing field
+            return [{"role": d.get("role"), "content": d.get("content"), **({"offer": d["offer"]} if d.get("offer") else {})}
+                    for d in docs][::-1]
         return await asyncio.to_thread(read)
 
     async def append(self, uid: str, conversation_id: str, messages: list[dict]) -> None:
@@ -47,7 +49,8 @@ class FirestoreMemoryStore(MemoryStore):
             for i, m in enumerate(messages):
                 # a server timestamp is identical for the whole batch; this keeps the question before its answer
                 batch.set(conv.collection("messages").document(), {
-                    "role": m["role"], "content": m["content"], "createdAt": now + i / 1000})
+                    "role": m["role"], "content": m["content"], "createdAt": now + i / 1000,
+                    **({"offer": m["offer"]} if m.get("offer") else {})})
             batch.commit()
         await asyncio.to_thread(write)
 

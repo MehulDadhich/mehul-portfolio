@@ -58,3 +58,9 @@ def test_follow_up_lookalike_keeps_its_own_topic(retriever, projects):
     question = "what are his projects that show he is good at what he does"
     hits = svc.find(question, f"is mehul good for hiring for an ai ml engineer role {question}", None, ())
     assert hits and hits[0].chunk.id == retriever.search(question, settings.top_k, settings.min_score)[0].chunk.id
+
+
+def test_abbreviations_find_the_spelled_out_skill():
+    from app.rag import expand
+    assert expand("does mehul know TTS") == "does mehul know TTS (text-to-speech)"
+    assert expand("does he know python") == "does he know python"

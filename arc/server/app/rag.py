@@ -49,6 +49,21 @@ def stem(word: str) -> str:
     return word
 
 
+# abbreviations visitors type that the site spells out ("does he know TTS?"); added to the query, never replacing it
+ABBREVIATIONS = {
+    "tts": "text-to-speech",
+    "stt": "speech-to-text",
+    "asr": "speech recognition speech-to-text",
+    "vlm": "vision-language model",
+    "vlms": "vision-language models",
+}
+
+
+def expand(query: str) -> str:
+    extra = [ABBREVIATIONS[w] for w in re.findall(r"[a-z]+", query.lower()) if w in ABBREVIATIONS]
+    return f"{query} ({' '.join(extra)})" if extra else query
+
+
 def tokenize(text: str) -> list[str]:
     return [stem(t) for t in TOKEN.findall(text.lower()) if t not in STOP]
 
@@ -113,7 +128,8 @@ class HybridRetriever:
         index = self._index
         if index is None:
             raise RuntimeError("the knowledge base isn't indexed yet")
-        q = _unit(np.array(list(self.embedder.query_embed(query))[0], dtype=np.float32))
+        query = expand(query)
+        q =_unit(np.array(list(self.embedder.query_embed(query))[0], dtype=np.float32))
         dense = index.vectors @ q
         sparse = np.array(index.bm25.get_scores(tokenize(query)), dtype=np.float32)
         if sparse.max() > 0:

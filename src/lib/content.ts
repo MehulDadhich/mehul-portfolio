@@ -19,6 +19,10 @@ export const profile = {
     "AI/ML engineer with six months of industry internship experience building and deploying real-time computer-vision systems and developing LLM-powered agent and NLP applications.",
 } as const;
 
+/** Opens a new message to Mehul in Gmail on the web (a plain mailto: hands off to whatever desktop mail app is set, often Outlook). */
+export const gmailCompose = (subject?: string) =>
+  `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.email)}${subject ? `&su=${encodeURIComponent(subject)}` : ""}`;
+
 export type Category = "cv" | "genai" | "fullstack" | "industry";
 
 export const categories: { id: "all" | Category; label: string }[] = [
@@ -42,6 +46,8 @@ export type Project = {
   architecture: Stage[];
   highlights: string[];
   github?: string;
+  /** The project's own live site, when it is deployed. */
+  demo?: string;
   /** Shown when there is no public repository to link to. */
   linkNote?: string;
   featured?: boolean;
@@ -72,7 +78,6 @@ export const projects: Project[] = [
       "Evaluated on held-out benchmark clips and a 6.5-hour shadow run on five site cameras",
       "Whole pipeline in 4.26 GB of GPU memory on a 6 GB laptop GPU",
     ],
-    linkNote: "Code walkthrough available on request",
   },
   {
     id: "warehouse",
@@ -309,8 +314,8 @@ export const skillGroups: SkillGroup[] = [
     id: "voice",
     label: "Speech & Voice AI",
     skills: [
-      { name: "Speech-to-text (Whisper)", used: ["rehearse"] },
-      { name: "Text-to-speech", used: ["rehearse"] },
+      { name: "Speech-to-text / ASR (Whisper)", used: ["rehearse"] },
+      { name: "Text-to-speech (TTS)", used: ["rehearse"] },
       { name: "Web Speech API", used: ["rehearse"] },
       { name: "Voice interfaces", used: ["rehearse"] },
       { name: "Audio recording (WAV)", used: ["rehearse"] },
@@ -325,7 +330,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "LangChain", used: ["task-agent"] },
       { name: "Tool calling", used: ["task-agent", "astra"] },
       { name: "Multi-agent systems", used: [] },
-      { name: "MCP", used: [] },
+      { name: "MCP (Model Context Protocol)", used: [] },
       { name: "Human-in-the-loop actions", used: ["arc", "astra"] },
       { name: "Conversational AI", used: ["rehearse", "arc", "astra"] },
       { name: "Conversation state machines", used: ["rehearse"] },

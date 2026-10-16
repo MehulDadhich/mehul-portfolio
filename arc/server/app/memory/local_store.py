@@ -38,7 +38,8 @@ class LocalMemoryStore(MemoryStore):
         check_id(conversation_id, "conversation id")
         data = await asyncio.to_thread(self._read, uid)
         messages = data["conversations"].get(conversation_id, {}).get("messages", [])
-        return [{"role": m["role"], "content": m["content"]} for m in messages[-limit:]]
+        return [{"role": m["role"], "content": m["content"], **({"offer": m["offer"]} if m.get("offer") else {})}
+                for m in messages[-limit:]]
 
     async def append(self, uid: str, conversation_id: str, messages: list[dict]) -> None:
         check_id(conversation_id, "conversation id")

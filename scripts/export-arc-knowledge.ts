@@ -38,7 +38,8 @@ const links = {
   linkedin: profile.linkedin,
   email: `mailto:${profile.email}`,
   phone: `tel:${profile.phone.replace(/\s+/g, "")}`,
-  projects: Object.fromEntries(projects.filter((p) => p.github).map((p) => [p.id, { title: p.title, github: p.github }])),
+  // every project, so Arc can open its architecture; code and live-site links only where they exist
+  projects: Object.fromEntries(projects.map((p) => [p.id, { title: p.title, ...(p.github && { github: p.github }), ...(p.demo && { demo: p.demo }) }])),
 };
 writeFileSync(join(OUT, "links.json"), JSON.stringify(links, null, 1) + "\n");
 console.log(`wrote ${KNOWLEDGE.length} documents to ${OUT}`);

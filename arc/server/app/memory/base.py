@@ -26,7 +26,8 @@ class MemoryStore(ABC):
 
     @abstractmethod
     async def history(self, uid: str, conversation_id: str, limit: int = 20) -> list[dict]:
-        """The conversation's latest messages, oldest first: [{"role": "user"|"assistant", "content": ...}]."""
+        """The conversation's latest messages, oldest first: [{"role": "user"|"assistant", "content": ...}].
+        An answer that offered an action also has "offer": the action, so a later "yes" runs exactly that."""
 
     @abstractmethod
     async def append(self, uid: str, conversation_id: str, messages: list[dict]) -> None: ...

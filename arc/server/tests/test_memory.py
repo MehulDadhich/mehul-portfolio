@@ -55,3 +55,11 @@ def test_only_meaningful_statements_are_remembered():
     assert visitor_notes("We're hiring for a computer vision engineer.") == ["The visitor is hiring for computer vision engineer."]
     assert visitor_notes("my name is Priya") == ["The visitor's name is Priya."]
     assert visitor_notes("What projects has he built?") == []
+
+
+def test_an_offer_is_remembered_with_its_answer(store):
+    offer = {"kind": "navigate", "key": "rehearse-architecture", "label": "Rehearse architecture", "section": "project-rehearse"}
+    run(store.append("visitor-a1", "conv-000002", [{"role": "user", "content": "take me to rehearse"},
+                                                    {"role": "assistant", "content": "Shall I?", "offer": offer}]))
+    user, answer = run(store.history("visitor-a1", "conv-000002"))
+    assert "offer" not in user and answer["offer"] == offer

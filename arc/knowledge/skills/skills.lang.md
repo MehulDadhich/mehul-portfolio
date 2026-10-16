@@ -1,4 +1,4 @@
 <!-- arc: {"id":"skills.lang","title":"Skills: Languages","keys":["skills","skill","technologies","tech stack","know","proficient","expertise","Languages","Python","SQL","JavaScript","TypeScript","Java"],"links":[{"label":"See skills","section":"skills"}]} -->
 # Skills: Languages
 
-**Languages:** Python (used in Infrax.ai TMCS, RoadGuard, Warehouse Monitoring, AI Task Manager, Arc, ASTRA and Rehearse), SQL (used in Infrax.ai TMCS and Warehouse Monitoring), JavaScript (used in AI Task Manager and Rehearse), TypeScript (used in Arc and ASTRA) and Java (no specific project named on the site).
+Mehul's Languages skills. He used Python in Infrax.ai TMCS, RoadGuard, Warehouse Monitoring, AI Task Manager, Arc, ASTRA and Rehearse. He used SQL in Infrax.ai TMCS and Warehouse Monitoring. He used JavaScript in AI Task Manager and Rehearse. He used TypeScript in Arc and ASTRA. He knows Java; no project on the site names it.

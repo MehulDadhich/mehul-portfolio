@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 const STEPS = 50;
 const DURATION = 2600;
-const PAD = { top: 90, right: 260, bottom: 110, left: 40 };
+const PAD = { top: 90, right: 160, bottom: 110, left: 60 };
 
 type Particle = { tx: number; ty: number; sx: number; sy: number; nx: number; ny: number; ph: number; x: number; y: number; vx: number; vy: number };
 
@@ -16,23 +16,40 @@ function readVar(el: Element, name: string) {
  * The hero name, "generated" in front of the visitor: particles start as pure noise and are
  * denoised over 50 sampler steps into the letters, then hand over to the real (crisp, selectable)
  * text. Hovering the name with a mouse brings the particles back and lets the cursor push them.
+ * Each `[data-line]` inside the h1 is rasterised with its own computed font, so mixed styles
+ * (the italic second line) land exactly on their glyphs. Starts when `play` turns true.
  */
-export function DiffusionName({ children, extras }: { children: ReactNode; extras?: ReactNode }) {
+export function DiffusionName({
+  children,
+  extras,
+  play,
+  onGenerated,
+}: {
+  children: ReactNode;
+  extras?: ReactNode;
+  play: boolean;
+  onGenerated?: () => void;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const hudStep = useRef<HTMLSpanElement>(null);
   const hudSigma = useRef<HTMLSpanElement>(null);
   const hud = useRef<HTMLParagraphElement>(null);
+  const done = useRef(onGenerated);
+  useEffect(() => { done.current = onGenerated; }, [onGenerated]);
 
   useEffect(() => {
     const root = wrap.current, cv = canvas.current;
-    if (!root || !cv) return;
+    if (!root || !cv || !play) return;
     const h1 = root.querySelector("h1") as HTMLElement | null;
     if (!h1) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       h1.style.visibility = "visible";
+      h1.style.opacity = "1";
       if (hud.current) hud.current.style.display = "none";
+      root.dataset.generated = "true";
+      done.current?.();
       return;
     }
 
@@ -41,7 +58,7 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
     let start = 0;
     let mode: "denoise" | "idle" | "hover" = "denoise";
     const mouse = { x: -9999, y: -9999 };
-    let colors = { noise: "#4c8dff", signal: "#0a6cff", fg: "#0e1726" };
+    let colors = { noise: "#9db4ff", signal: "#ff5b2e", fg: "#efece4" };
 
     const sample = () => {
       const r = root.getBoundingClientRect();
@@ -58,25 +75,28 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
       const off = document.createElement("canvas");
       off.width = Math.round(w);
       off.height = Math.round(h);
-      const o = off.getContext("2d")!;
-      const cs = getComputedStyle(h1);
+      const o = off.getContext("2d", { willReadFrequently: true })!;
       o.fillStyle = "#000";
-      o.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-      const oo = o as CanvasRenderingContext2D & { fontStretch?: string; letterSpacing?: string };
-      if ("fontStretch" in oo) oo.fontStretch = "expanded";
-      if ("letterSpacing" in oo) oo.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
       o.textBaseline = "alphabetic";
+      let fontPx = 64;
       h1.querySelectorAll<HTMLElement>("[data-line]").forEach((line) => {
+        const cs = getComputedStyle(line);
+        fontPx = parseFloat(cs.fontSize);
+        o.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+        const oo = o as CanvasRenderingContext2D & { letterSpacing?: string };
+        if ("letterSpacing" in oo) oo.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
         const lr = line.getBoundingClientRect();
-        const text = (line.textContent || "").toUpperCase();
+        const text = line.textContent || "";
         const m = o.measureText(text);
         const fa = m.fontBoundingBoxAscent ?? m.actualBoundingBoxAscent;
         const fd = m.fontBoundingBoxDescent ?? m.actualBoundingBoxDescent;
         const baseline = lr.top - r.top + PAD.top + (lr.height - (fa + fd)) / 2 + fa;
-        o.fillText(text, lr.left - r.left + PAD.left, baseline);
+        // draw where the glyphs actually start: after the line's padding (the indented second line)
+        o.fillText(text, lr.left - r.left + PAD.left + parseFloat(cs.paddingLeft || "0"), baseline);
       });
       const data = o.getImageData(0, 0, off.width, off.height).data;
-      const step = Math.max(3, Math.round(parseFloat(cs.fontSize) / 30));
+      // the serif is light at display sizes, so sample finely enough for its strokes to read as ink
+      const step = Math.max(2, Math.round(fontPx / 64));
       parts = [];
       for (let y = 0; y < off.height; y += step) {
         for (let x = 0; x < off.width; x += step) {
@@ -87,11 +107,11 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
         }
       }
       colors = {
-        noise: readVar(root, "--model") || colors.noise,
+        noise: readVar(root, "--reason") || colors.noise,
         signal: readVar(root, "--signal") || colors.signal,
         fg: readVar(root, "--fg") || colors.fg,
       };
-      return { w, h, dpr, size: Math.max(1.6, step * 0.62) };
+      return { w, h, dpr, size: Math.max(1.5, step * 0.8) };
     };
 
     let dims = sample();
@@ -127,6 +147,7 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
           mode = "idle";
           parts.forEach((q) => { q.x = q.tx; q.y = q.ty; q.vx = 0; q.vy = 0; });
           root.dataset.generated = "true";
+          done.current?.();
           setTimeout(() => { if (hud.current) hud.current.style.opacity = "0"; }, 1400);
           setTimeout(() => { if (mode === "idle") { show(false); } }, 250);
           setTimeout(() => { if (mode === "idle") { cancelAnimationFrame(raf); raf = 0; } }, 900);
@@ -161,6 +182,7 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
       dims = sample();
       h1.style.visibility = "visible";
       show(true);
+      if (hud.current) hud.current.style.opacity = "1";
       raf = requestAnimationFrame(frame);
     });
 
@@ -202,11 +224,11 @@ export function DiffusionName({ children, extras }: { children: ReactNode; extra
       root.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [play]);
 
   return (
     <div ref={wrap} className="relative w-fit">
-      <p ref={hud} className="absolute bottom-full left-0 mb-3 whitespace-nowrap font-mono text-[11px] text-dim transition-opacity duration-700" aria-hidden>
+      <p ref={hud} className="absolute bottom-full left-0 mb-3 whitespace-nowrap font-mono text-[11px] text-dim opacity-0 transition-opacity duration-700" aria-hidden>
         DDIM sampler · step <span ref={hudStep} className="text-signal">00</span>/{STEPS} · σ <span ref={hudSigma} className="text-signal">1.00</span>
       </p>
       {children}

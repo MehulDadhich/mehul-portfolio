@@ -1,17 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Mona_Sans } from "next/font/google";
+import { Inter_Tight, JetBrains_Mono, Newsreader } from "next/font/google";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
+import { MotionProvider } from "@/components/providers/motion-config";
 import { Nav } from "@/components/shared/nav";
 import { EasterEgg } from "@/components/shared/easter-egg";
-import { DetectionCursor } from "@/components/shared/detection-cursor";
 import { Assistant } from "@/components/assistant/assistant";
-import { LidarBackdrop } from "@/components/shared/lidar-backdrop";
 import { siteDescription, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist", subsets: ["latin"], display: "swap" });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
-const mona = Mona_Sans({ variable: "--font-mona", subsets: ["latin"], axes: ["wdth"], display: "swap" });
+const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"], style: ["normal", "italic"], axes: ["opsz"], display: "swap" });
+const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"], display: "swap" });
+const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -39,31 +38,28 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0b10",
+  themeColor: "#0c0c0b",
   colorScheme: "dark",
   viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${mona.variable} antialiased`}>
-      <body className="isolate min-h-svh bg-ink text-fg">
-        <noscript>
-          <style>{`.boot-hide{visibility:visible!important}`}</style>
-        </noscript>
+    <html lang="en" className={`${newsreader.variable} ${interTight.variable} ${jetbrains.variable} antialiased`}>
+      <body className="grain isolate min-h-svh bg-ink text-fg">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-fg focus:px-3 focus:py-2 focus:text-ink"
         >
           Skip to content
         </a>
-        <SmoothScroll />
-        <LidarBackdrop />
-        <Nav />
-        {children}
-        <EasterEgg />
-        <DetectionCursor />
-        <Assistant />
+        <MotionProvider>
+          <SmoothScroll />
+          <Nav />
+          {children}
+          <EasterEgg />
+          <Assistant />
+        </MotionProvider>
       </body>
     </html>
   );

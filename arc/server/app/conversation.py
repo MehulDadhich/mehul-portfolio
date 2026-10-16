@@ -39,11 +39,24 @@ class ArcService:
         self.memory = memory
 
     def focus(self, question: str, history: list[dict]) -> str | None:
-        """The project being discussed: named in the question, or (for "it", "that"…) in the last question."""
+        """The project being discussed: named in the question, or (for "it", "that"…) in the last exchange."""
         if project := detect_project(question, self.projects):
             return project
+        if not query_follows_up(question):
+            return None
+        # the last question first; then Arc's last answer, which may have named it ("which project used TTS?" → Rehearse)
         last_user = next((t["content"] for t in reversed(history) if t["role"] == "user"), "")
-        return detect_project(last_user, self.projects) if last_user and query_follows_up(question) else None
+        last_answer = history[-1]["content"] if history and history[-1]["role"] == "assistant" else ""
+        return detect_project(last_user, self.projects) or detect_project(last_answer, self.projects)
+
+    def action_focus(self, question: str, history: list[dict]) -> str | None:
+        """For page actions, also the project of the last few turns ("open architecture for me" after talking about one)."""
+        if project := self.focus(question, history):
+            return project
+        for turn in reversed(history[-4:]):
+            if project := detect_project(turn["content"], self.projects):
+                return project
+        return None
 
     def find(self, question: str, query: str, project: str | None, include: tuple[str, ...]) -> list[Hit]:
         s = self.settings
@@ -67,7 +80,10 @@ class ArcService:
         query = retrieval_query(question, history)
         project = self.focus(question, history)
         include = ("about",) if ABOUT_MEHUL.search(question) else ()
-        decision = decide(question, history, self.links, self.projects)
+        if project and not detect_project(question, self.projects):
+            # "tell me more about this project": the borrowed question can pull in skills instead, so keep the overview
+            include += (f"{project}.overview",)
+        decision = decide(question, history, self.links, self.projects, focus=self.action_focus)
         task = decision.task
         if not task and GREETING_ONLY.match(question):
             task = GREETING_TASK
@@ -120,7 +136,9 @@ class ArcService:
         }
 
         if text:
-            await self.memory.append(uid, conversation_id, [{"role": "user", "content": question},
-                                                            {"role": "assistant", "content": text}])
+            reply = {"role": "assistant", "content": text}
+            if decision.action and decision.action.confirm:
+                reply["offer"] = decision.action.event()["action"]
+            await self.memory.append(uid, conversation_id, [{"role": "user", "content": question}, reply])
             for note in visitor_notes(question):
                 await self.memory.add_note(uid, note)
