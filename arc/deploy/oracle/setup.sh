@@ -18,7 +18,18 @@ export DEBIAN_FRONTEND=noninteractive
 
 echo "==> Packages"
 apt-get update -qq
-apt-get install -y -qq build-essential cmake git curl python3-venv caddy >/dev/null
+apt-get install -y -qq build-essential cmake git curl gnupg python3-venv >/dev/null
+
+# Oracle's Ubuntu images don't always carry Caddy in their package sources, so it comes from Caddy's own repository
+if ! command -v caddy >/dev/null; then
+  echo "==> Caddy"
+  curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key |
+    gpg --batch --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt > /etc/apt/sources.list.d/caddy-stable.list
+  apt-get update -qq
+  apt-get install -y -qq caddy >/dev/null
+fi
 
 # Oracle's Ubuntu images reject everything but SSH in iptables (on top of the VCN security list);
 # other clouds (Azure, …) leave the VM firewall open and filter in their network settings only
