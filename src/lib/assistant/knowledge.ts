@@ -307,8 +307,8 @@ function siteDocs(): Doc[] {
     {
       id: "site.easter",
       title: "Easter egg",
-      answer: "Try typing **y o l o** anywhere on the page (outside this chat). And **Ctrl + K** opens or closes me (Arc) from anywhere.",
-      keys: ["easter egg", "secret", "hidden", "trick", "fun", "yolo", "shortcut", "keyboard", "ctrl k"],
+      answer: "Try typing **y o l o** anywhere on the page (outside this chat). And **Ctrl + M** opens or closes me (Arc) from anywhere.",
+      keys: ["easter egg", "secret", "hidden", "trick", "fun", "yolo", "shortcut", "keyboard", "ctrl m"],
     },
   ];
 }

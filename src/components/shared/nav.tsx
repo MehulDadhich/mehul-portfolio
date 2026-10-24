@@ -111,11 +111,11 @@ export function Nav() {
             type="button"
             onClick={openAssistant}
             className="hidden h-9 items-center gap-2 rounded-full border border-line-strong px-3.5 text-[13px] text-fg transition-colors hover:border-fg sm:flex"
-            aria-label="Ask Arc, Mehul's portfolio assistant (Ctrl + K)"
+            aria-label="Ask Arc, Mehul's portfolio assistant (Ctrl + M)"
           >
             <span className="size-1.5 rounded-full bg-signal motion-safe:animate-[pulse-dot_2.4s_ease-in-out_infinite]" aria-hidden />
             Ask Arc
-            <kbd className="font-mono text-[11px] text-soft">Ctrl K</kbd>
+            <kbd className="font-mono text-[11px] text-soft">Ctrl M</kbd>
           </button>
           <a
             href={profile.resume}

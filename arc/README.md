@@ -42,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File arc\run.ps1
 npm run dev
 ```
 
-Open http://localhost:3000 and press **Ctrl + K**. In development the site talks to `http://127.0.0.1:8000`
+Open http://localhost:3000 and press **Ctrl + M**. In development the site talks to `http://127.0.0.1:8000`
 automatically; set `ARC_API_URL` in `.env.local` to point it elsewhere.
 
 Check the API on its own: http://127.0.0.1:8000/health

@@ -24,7 +24,7 @@ and the contact page is a live LiDAR scan.
 | **Scroll-driven case study** | RoadGuard, my accident-detection pipeline, is pinned while you scroll through *Video → YOLO → Tracking → LSTM → VLM → Alert*. An illustrative simulation adds boxes, track IDs, the LSTM score, the VLM verdict and the alert at each stage. |
 | **Projects as architectures** | Filterable project cards whose pipelines light up on hover, with an *Explore architecture* view for each system. |
 | **Evidence-linked skills** | Pick a project to see which skills it used, or hover a skill to see where it came from. |
-| **Arc, the on-site AI assistant** | A generative RAG assistant with no third-party AI: hybrid retrieval (BM25 + `bge-small` embeddings) over a knowledge base generated from the site's content, conversation memory, and an open-weight model (Llama 3.2 3B Instruct via llama.cpp) that writes every answer. Open it with <kbd>Ctrl</kbd>+<kbd>K</kbd>. See [`arc/README.md`](arc/README.md). |
+| **Arc, the on-site AI assistant** | A generative RAG assistant with no third-party AI: hybrid retrieval (BM25 + `bge-small` embeddings) over a knowledge base generated from the site's content, conversation memory, and an open-weight model (Llama 3.2 3B Instruct via llama.cpp) that writes every answer. Open it with <kbd>Ctrl</kbd>+<kbd>M</kbd>. See [`arc/README.md`](arc/README.md). |
 | **LiDAR contact section** | A street rendered as a 3D point cloud with a sweeping scan ring. The cursor orbits the camera. |
 | **Small details** | A detection-box cursor that labels whatever you point at, count-up metrics and a footer signature that fills with gold as you reach the end. |
 

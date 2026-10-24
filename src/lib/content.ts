@@ -177,7 +177,7 @@ export const projects: Project[] = [
       "Self-hosted open-weight model, no third-party AI API",
       "70 automated tests for retrieval, prompts, actions and memory",
     ],
-    linkNote: "Running on this site: press Ctrl + K",
+    linkNote: "Running on this site: press Ctrl + M",
   },
   {
     id: "rehearse",

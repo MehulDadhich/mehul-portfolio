@@ -82,8 +82,8 @@ export function Assistant() {
     const onOpen = () => setOpen(true);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
-      // Ctrl/Cmd + K toggles Arc from anywhere on the page
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      // Ctrl/Cmd + M toggles Arc from anywhere on the page
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "m") {
         e.preventDefault();
         setOpen((o) => !o);
       }
@@ -252,8 +252,8 @@ export function Assistant() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls="md-assistant"
-        aria-label={open ? "Close Arc" : "Ask Arc (Ctrl + K)"}
-        data-cursor={open ? "close arc" : "ask arc · ctrl k"}
+        aria-label={open ? "Close Arc" : "Ask Arc (Ctrl + M)"}
+        data-cursor={open ? "close arc" : "ask arc · ctrl m"}
         initial={reduce ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.4, duration: 0.6 }}
@@ -263,7 +263,7 @@ export function Assistant() {
           {open ? <X className="size-4 text-signal" aria-hidden /> : <ArcOrb size={32} state="idle" />}
         </span>
         <span className="hidden sm:inline">{open ? "Close" : "Ask Arc"}</span>
-        {!open ? <kbd className="hidden rounded border border-line px-1.5 py-0.5 font-mono text-[10px] text-dim sm:inline">Ctrl K</kbd> : null}
+        {!open ? <kbd className="hidden rounded border border-line px-1.5 py-0.5 font-mono text-[10px] text-dim sm:inline">Ctrl M</kbd> : null}
       </motion.button>
 
       <AnimatePresence>

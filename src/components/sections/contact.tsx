@@ -145,7 +145,7 @@ export function Contact() {
           <button type="button" onClick={openAssistant} className="text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-signal">
             Arc answers from this site&rsquo;s facts
           </button>{" "}
-          — <kbd className="font-mono text-[13px]">Ctrl K</kbd>.
+          — <kbd className="font-mono text-[13px]">Ctrl M</kbd>.
         </p>
       </div>
     </section>
