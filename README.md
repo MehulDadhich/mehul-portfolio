@@ -19,7 +19,7 @@ and the contact page is a live LiDAR scan.
 
 | | |
 |---|---|
-| **Diffusion hero** | On load, thousands of particles are denoised over 50 sampler steps into my name, then hand over to real, selectable text. Hover the name and the particles come back and scatter away from the cursor. |
+| **Diffusion hero** | On load, thousands of particles are denoised over 50 sampler steps into my name, then hand over to real, selectable text, over a 3D core: a noise-displaced iridescent sphere with chrome rings and a particle field, lit in the machine-view palette. Hover the name and the particles scatter from the cursor; scroll and the camera dives into the core before the RoadGuard chapter. |
 | **Motion frames** | Six capability frames (Computer Vision, Generative AI, NLP, Backend, AI Agents, Real-world AI) fly in from depth, tilt in 3D with the cursor and stream data into the name. On scroll they gather into a fanned deck and burst into a grid. |
 | **Scroll-driven case study** | RoadGuard, my accident-detection pipeline, is pinned while you scroll through *Video → YOLO → Tracking → LSTM → VLM → Alert*. An illustrative simulation adds boxes, track IDs, the LSTM score, the VLM verdict and the alert at each stage. |
 | **Projects as architectures** | Filterable project cards whose pipelines light up on hover, with an *Explore architecture* view for each system. |
